@@ -1,3 +1,5 @@
+-- Reset Tables
+
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS MatchParticipation;
@@ -11,12 +13,13 @@ DROP TABLE IF EXISTS AvailabilitySlot;
 DROP TABLE IF EXISTS Interest;
 DROP TABLE IF EXISTS Skill;
 DROP TABLE IF EXISTS Experience;
-DROP TABLE IF EXISTS Event;
+DROP TABLE IF EXISTS 'Event';
 DROP TABLE IF EXISTS Course;
 DROP TABLE IF EXISTS Student;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- Table Creation
 
 CREATE TABLE Student (
     student_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -34,7 +37,7 @@ CREATE TABLE Course (
     section   VARCHAR(10)
 );
 
-CREATE TABLE Event (
+CREATE TABLE 'Event' (
     event_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     description TEXT,
@@ -67,7 +70,6 @@ CREATE TABLE Interest (
     name VARCHAR(100) UNIQUE NOT NULL
 );
 
-
 CREATE TABLE AvailabilitySlot (
     slot_id     INT AUTO_INCREMENT PRIMARY KEY,
     student_id  INT NOT NULL,
@@ -80,7 +82,6 @@ CREATE TABLE AvailabilitySlot (
     INDEX idx_avail_student (student_id)
 );
 
-
 CREATE TABLE `Match` (
     match_id INT AUTO_INCREMENT PRIMARY KEY,
     status VARCHAR(50),
@@ -88,8 +89,6 @@ CREATE TABLE `Match` (
     capacity INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-
 
 CREATE TABLE Enrollment (
     student_id INT NOT NULL,
@@ -163,7 +162,27 @@ CREATE TABLE MatchParticipation (
       ON DELETE CASCADE
 );
 
+-- Check Constraint
 
+ALTER TABLE Student
+ADD CONSTRAINT check_grad_year
+CHECK (grad_year BETWEEN 2025 AND 2035);
+
+-- Stored Procedure
+
+DELIMITER $$
+CREATE PROCEDURE update_grad_year (
+IN p_student_id INT,
+IN p_new_grad_year INT
+)
+BEGIN
+UPDATE Student
+    	SET grad_year = p_new_grad_year
+    	WHERE student_id = p_student_id;
+END$$
+DELIMITER ;
+
+-- Dummy Data
 
 INSERT INTO Student (first_name, last_name, email, grad_year, password) VALUES
 ('Maddie', 'Wise', 'mw5q@virginia.edu', 2025, 'password123'),
@@ -214,7 +233,7 @@ INSERT INTO Course (title, year, section) VALUES
 ('PHYS 1425 - Intro Physics I', 2025, '001'),
 ('CS 4980 - Capstone Project', 2025, '001');
 
-INSERT INTO Event (title, description, type, start_datetime, end_datetime, location) VALUES
+INSERT INTO 'Event' (title, description, type, start_datetime, end_datetime, location) VALUES
 ('HackUVA', 'Annual 24-hour hackathon for UVA students.', 'Tech', '2025-03-01 09:00:00', '2025-03-02 15:00:00', 'Rice Hall'),
 ('Startup Mixer', 'Networking event for founders and investors.', 'Career', '2025-03-10 18:00:00', '2025-03-10 20:00:00', 'Contemplative Commons'),
 ('Women in Tech Night', 'Celebration of women in computing at UVA.', 'Social', '2025-02-05 17:00:00', '2025-02-05 19:00:00', 'Newcomb Hall'),
@@ -225,3 +244,47 @@ INSERT INTO Event (title, description, type, start_datetime, end_datetime, locat
 ('CIO Fair', 'Showcase of UVA CIOs and student clubs.', 'Social', '2025-02-12 11:00:00', '2025-02-12 14:00:00', 'Amphitheater'),
 ('LinkedIn Headshots', 'Professional headshot session for students.', 'Career', '2025-02-28 13:00:00', '2025-02-28 16:00:00', 'Newcomb Ballroom'),
 ('Capstone Demo Day', 'Students present final projects.', 'Academic', '2025-05-02 09:00:00', '2025-05-02 12:00:00', 'Olsson Hall');
+
+-- Delete Commands
+
+DELETE FROM Student
+WHERE student_id = 1;
+
+DELETE FROM Course
+WHERE course_id = 1;
+
+DELETE FROM 'Event'
+WHERE event_id = 1;
+
+DELETE FROM Experience
+WHERE experience_id = 1;
+
+DELETE FROM Skill
+WHERE skill_id = 1;
+
+DELETE FROM Interest
+WHERE interest_id = 1;
+
+DELETE FROM AvailabilitySlot
+WHERE slot_id = 1 AND student_id = 1;
+
+DELETE FROM 'Match'
+WHERE match_id = 1;
+
+DELETE FROM Enrollment
+WHERE student_id = 1 AND course_id = 1;
+
+DELETE FROM Attends
+WHERE student_id = 1 AND event_id = 1;
+
+DELETE FROM Organizes
+WHERE student_id = 1 AND event_id = 1;
+
+DELETE FROM StudentSkill
+WHERE student_id = 1 AND skill_id = 1;
+
+DELETE FROM StudentInterest
+WHERE student_id = 1 AND interest_id = 1;
+
+DELETE FROM MatchParticipation
+WHERE student_id = 1 AND match_id = 1;

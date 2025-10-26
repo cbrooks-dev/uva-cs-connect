@@ -31,9 +31,4 @@ def create_app(test_config=None):
     # Register CLI command (flask init-db)
     app.cli.add_command(init_db_command)
 
-    # Simple route to test the server
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
-
     return app
