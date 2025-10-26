@@ -1,34 +1,39 @@
 import os
-
 from flask import Flask
-
+from .db import close_db, init_db_command
+from .routes import bp as main_bp
 
 def create_app(test_config=None):
-    # create and configure the app
+    # Create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
     )
 
+    # Load config
     if test_config is None:
-        # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
     else:
-        # load the test config if passed in
         app.config.from_mapping(test_config)
 
-    # ensure the instance folder exists
+    # Ensure instance folder exists
     try:
         os.makedirs(app.instance_path)
     except OSError:
         pass
 
-    # a simple page that says hello
+    # Register teardown (closes DB connection after each request)
+    app.teardown_appcontext(close_db)
+
+    # Register the main blueprint (routes)
+    app.register_blueprint(main_bp)
+
+    # Register CLI command (flask init-db)
+    app.cli.add_command(init_db_command)
+
+    # Simple route to test the server
     @app.route('/hello')
     def hello():
         return 'Hello, World!'
 
     return app
-
-# TODO: change this file
