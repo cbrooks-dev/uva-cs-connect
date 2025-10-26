@@ -82,7 +82,7 @@ CREATE TABLE AvailabilitySlot (
     INDEX idx_avail_student (student_id)
 );
 
-CREATE TABLE Match (
+CREATE TABLE `Match` (
     match_id INT AUTO_INCREMENT PRIMARY KEY,
     status VARCHAR(50),
     match_score DECIMAL(5,2),
