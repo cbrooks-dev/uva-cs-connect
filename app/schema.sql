@@ -245,6 +245,110 @@ INSERT INTO 'Event' (title, description, type, start_datetime, end_datetime, loc
 ('LinkedIn Headshots', 'Professional headshot session for students.', 'Career', '2025-02-28 13:00:00', '2025-02-28 16:00:00', 'Newcomb Ballroom'),
 ('Capstone Demo Day', 'Students present final projects.', 'Academic', '2025-05-02 09:00:00', '2025-05-02 12:00:00', 'Olsson Hall');
 
+-- Insert statements
+
+INSERT INTO Student (first_name, last_name, email, grad_year, password) VALUES
+('Ana', 'Doe', 'dde3@virginia.edu', 2026, 'securePass123');
+
+INSERT INTO Course (title, year, section) VALUES
+('Database Systems', 2025, 'A');
+
+INSERT INTO `Event` (title, description, type, start_datetime, end_datetime, location) VALUES
+('Career Fair', 'Meet employers on campus', 'Networking', '2025-04-10 10:00:00', '2025-04-10 14:00:00', 'Thornton Hall');
+
+INSERT INTO Experience (student_id, job_title, organization, start_date, end_date, description) VALUES
+(1, 'Intern', 'Microsoft', '2024-06-01', '2024-08-30', 'Worked on backend development for Azure cloud services.');
+
+INSERT INTO Skill (name) VALUES
+('Python');
+
+INSERT INTO Interest (name) VALUES
+('Artificial Intelligence');
+
+INSERT INTO AvailabilitySlot (student_id, start_time, end_time, day_of_week) VALUES
+(1, '09:00:00', '10:00:00', 'Monday');
+
+INSERT INTO `Match` (status, match_score, capacity) VALUES
+('Pending', 87.5, 3);
+
+INSERT INTO Enrollment (student_id, course_id) VALUES
+(1, 1);
+
+INSERT INTO Attends (student_id, event_id) VALUES
+(1, 1);
+
+INSERT INTO Organizes (student_id, event_id) VALUES
+(1, 1);
+
+INSERT INTO StudentSkill (student_id, skill_id) VALUES
+(1, 1);
+
+INSERT INTO StudentInterest (student_id, interest_id) VALUES
+(1, 1);
+
+INSERT INTO MatchParticipation (student_id, match_id) VALUES
+(1, 1);
+
+
+-- Update statements
+
+UPDATE Student 
+SET grad_year = 2027, password = 'newSecurePass!' 
+WHERE student_id = 1;
+
+UPDATE Course
+SET title = 'Advanced Database Systems'
+WHERE course_id = 1;
+
+UPDATE `Event`
+SET location = 'Thornton Hall - Room 201'
+WHERE event_id = 1;
+
+UPDATE Experience
+SET job_title = 'Software Engineer Intern'
+WHERE experience_id = 1;
+
+UPDATE Skill
+SET name = 'Advanced Python'
+WHERE skill_id = 1;
+
+UPDATE Interest
+SET name = 'Machine Learning'
+WHERE interest_id = 1;
+
+UPDATE AvailabilitySlot
+SET end_time = '10:30:00'
+WHERE slot_id = 1;
+
+UPDATE `Match`
+SET status = 'Confirmed', match_score = 90
+WHERE match_id = 1;
+
+UPDATE Enrollment
+SET course_id = 2
+WHERE student_id = 1 AND course_id = 1;
+
+UPDATE Attends
+SET event_id = 2
+WHERE student_id = 1 AND event_id = 1;
+
+UPDATE Organizes
+SET event_id = 3
+WHERE student_id = 1 AND event_id = 1;
+
+UPDATE StudentSkill
+SET skill_id = 2
+WHERE student_id = 1 AND skill_id = 1;
+
+UPDATE StudentInterest
+SET interest_id = 2
+WHERE student_id = 1 AND interest_id = 1;
+
+UPDATE MatchParticipation
+SET match_id = 2
+WHERE student_id = 1 AND match_id = 1;
+
+
 -- Delete Commands
 
 DELETE FROM Student
