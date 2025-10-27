@@ -357,7 +357,7 @@ WHERE student_id = 1;
 DELETE FROM Course
 WHERE course_id = 1;
 
-DELETE FROM 'Event'
+DELETE FROM `Event`
 WHERE event_id = 1;
 
 DELETE FROM Experience
@@ -372,7 +372,7 @@ WHERE interest_id = 1;
 DELETE FROM AvailabilitySlot
 WHERE slot_id = 1 AND student_id = 1;
 
-DELETE FROM 'Match'
+DELETE FROM `Match`
 WHERE match_id = 1;
 
 DELETE FROM Enrollment
