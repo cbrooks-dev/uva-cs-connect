@@ -348,3 +348,48 @@ WHERE student_id = 1 AND interest_id = 1;
 UPDATE MatchParticipation
 SET match_id = 1
 WHERE student_id = 1 AND match_id = 1;
+
+-- Delete Commands
+
+DELETE FROM Student
+WHERE student_id = 1;
+
+DELETE FROM Course
+WHERE course_id = 1;
+
+DELETE FROM 'Event'
+WHERE event_id = 1;
+
+DELETE FROM Experience
+WHERE experience_id = 1;
+
+DELETE FROM Skill
+WHERE skill_id = 1;
+
+DELETE FROM Interest
+WHERE interest_id = 1;
+
+DELETE FROM AvailabilitySlot
+WHERE slot_id = 1 AND student_id = 1;
+
+DELETE FROM 'Match'
+WHERE match_id = 1;
+
+DELETE FROM Enrollment
+WHERE student_id = 1 AND course_id = 1;
+
+DELETE FROM Attends
+WHERE student_id = 1 AND event_id = 1;
+
+DELETE FROM Organizes
+WHERE student_id = 1 AND event_id = 1;
+
+DELETE FROM StudentSkill
+WHERE student_id = 1 AND skill_id = 1;
+
+DELETE FROM StudentInterest
+WHERE student_id = 1 AND interest_id = 1;
+
+DELETE FROM MatchParticipation
+SET match_id = 1
+WHERE student_id = 1 AND match_id = 1;
