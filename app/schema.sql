@@ -289,9 +289,170 @@ INSERT INTO StudentInterest (student_id, interest_id) VALUES
 INSERT INTO MatchParticipation (student_id, match_id) VALUES
 (@student_id, @match_id);
 
+-- Retrieve statements
+-- Retrieve all students
+SELECT * FROM Student;
 
+-- Retrieve student names and emails graduating in 2025
+SELECT first_name, last_name, email
+FROM Student
+WHERE grad_year = 2025;
 
---Update statements
+-- Retrieve students ordered by graduation year (soonest first)
+SELECT first_name, last_name, grad_year
+FROM Student
+ORDER BY grad_year ASC;
+
+-- Retrieve all courses
+SELECT * FROM Course;
+
+-- Retrieve all CS courses
+SELECT * 
+FROM Course
+WHERE title LIKE 'CS%';
+
+-- Count how many courses are offered by department prefix
+SELECT SUBSTRING_INDEX(title, ' ', 1) AS department, COUNT(*) AS num_courses
+FROM Course
+GROUP BY department;
+
+-- Retrieve all upcoming events
+SELECT title, type, start_datetime, location
+FROM `Event`
+WHERE start_datetime > NOW()
+ORDER BY start_datetime ASC;
+
+-- Retrieve events by type
+SELECT type, COUNT(*) AS total_events
+FROM `Event`
+GROUP BY type;
+
+-- Retrieve events happening in March
+SELECT title, start_datetime
+FROM `Event`
+WHERE MONTH(start_datetime) = 3;
+
+-- Retrieve all experiences per student
+SELECT s.first_name, s.last_name, e.job_title, e.organization
+FROM Experience e
+JOIN Student s ON e.student_id = s.student_id;
+
+-- Retrieve most common organizations students worked at
+SELECT organization, COUNT(*) AS total
+FROM Experience
+GROUP BY organization
+ORDER BY total DESC;
+
+-- Retrieve all skills
+SELECT * FROM Skill;
+
+-- Retrieve students with a specific skill (Python)
+SELECT s.first_name, s.last_name
+FROM StudentSkill ss
+JOIN Student s ON ss.student_id = s.student_id
+JOIN Skill sk ON ss.skill_id = sk.skill_id
+WHERE sk.name = 'Python';
+
+-- Retrieve all interests
+SELECT * FROM Interest;
+
+-- Retrieve students interested in 'Artificial Intelligence'
+SELECT s.first_name, s.last_name
+FROM StudentInterest si
+JOIN Student s ON si.student_id = s.student_id
+JOIN Interest i ON si.interest_id = i.interest_id
+WHERE i.name = 'Artificial Intelligence';
+
+-- Retrieve all availability slots
+SELECT * FROM AvailabilitySlot;
+
+-- Retrieve students available on Fridays
+SELECT s.first_name, s.last_name, a.start_time, a.end_time
+FROM AvailabilitySlot a
+JOIN Student s ON a.student_id = s.student_id
+WHERE a.day_of_week = 'Friday';
+
+-- Retrieve all matches
+SELECT * FROM `Match`;
+
+-- Retrieve top matches by score
+SELECT match_id, status, match_score
+FROM `Match`
+ORDER BY match_score DESC
+LIMIT 10;
+
+-- Retrieve all enrollments
+SELECT * FROM Enrollment;
+
+-- Retrieve courses each student is enrolled in
+SELECT s.first_name, s.last_name, c.title
+FROM Enrollment e
+JOIN Student s ON e.student_id = s.student_id
+JOIN Course c ON e.course_id = c.course_id
+ORDER BY s.last_name;
+
+-- Retrieve total students per course
+SELECT c.title, COUNT(e.student_id) AS num_students
+FROM Enrollment e
+JOIN Course c ON e.course_id = c.course_id
+GROUP BY c.title
+ORDER BY num_students DESC;
+
+-- Retrieve all event attendance
+SELECT s.first_name, s.last_name, e.title AS event_title
+FROM Attends a
+JOIN Student s ON a.student_id = s.student_id
+JOIN `Event` e ON a.event_id = e.event_id;
+
+-- Retrieve attendance count per event
+SELECT e.title, COUNT(a.student_id) AS attendees
+FROM Attends a
+JOIN `Event` e ON a.event_id = e.event_id
+GROUP BY e.title
+ORDER BY attendees DESC;
+
+-- Retrieve all organizers and their events
+SELECT s.first_name, s.last_name, e.title
+FROM Organizes o
+JOIN Student s ON o.student_id = s.student_id
+JOIN `Event` e ON o.event_id = e.event_id;
+
+-- Retrieve number of events each student organized
+SELECT s.first_name, s.last_name, COUNT(o.event_id) AS events_organized
+FROM Organizes o
+JOIN Student s ON o.student_id = s.student_id
+GROUP BY s.student_id
+ORDER BY events_organized DESC;
+
+-- Retrieve all student-skill relationships
+SELECT s.first_name, s.last_name, sk.name AS skill
+FROM StudentSkill ss
+JOIN Student s ON ss.student_id = s.student_id
+JOIN Skill sk ON ss.skill_id = sk.skill_id
+ORDER BY s.last_name;
+
+-- Retrieve all student-interest relationships
+SELECT s.first_name, s.last_name, i.name AS interest
+FROM StudentInterest si
+JOIN Student s ON si.student_id = s.student_id
+JOIN Interest i ON si.interest_id = i.interest_id
+ORDER BY s.last_name;
+
+-- Retrieve which students are in which match
+SELECT s.first_name, s.last_name, m.match_id, m.status, m.match_score
+FROM MatchParticipation mp
+JOIN Student s ON mp.student_id = s.student_id
+JOIN `Match` m ON mp.match_id = m.match_id
+ORDER BY m.match_id;
+
+-- Retrieve number of participants per match
+SELECT m.match_id, COUNT(mp.student_id) AS participants
+FROM MatchParticipation mp
+JOIN `Match` m ON mp.match_id = m.match_id
+GROUP BY m.match_id
+ORDER BY participants DESC;
+
+-- Update statements
 
 UPDATE Student 
 SET grad_year = 2027, password = 'newSecurePass!' 
@@ -391,5 +552,4 @@ DELETE FROM StudentInterest
 WHERE student_id = 1 AND interest_id = 1;
 
 DELETE FROM MatchParticipation
-SET match_id = 1
 WHERE student_id = 1 AND match_id = 1;
