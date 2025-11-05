@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from .db import close_db, init_db_command
 from .routes import bp as main_bp
+from .add import bp as add_bp
 
 def create_app(test_config=None):
     # Create and configure the app
@@ -27,6 +28,9 @@ def create_app(test_config=None):
 
     # Register the main blueprint (routes)
     app.register_blueprint(main_bp)
+
+    # Register additional blueprints
+    app.register_blueprint(add_bp)
 
     # Register CLI command (flask init-db)
     app.cli.add_command(init_db_command)
