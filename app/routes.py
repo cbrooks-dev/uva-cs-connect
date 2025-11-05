@@ -12,9 +12,4 @@ def health():
 
 @bp.route('/')
 def index():
-    rows = execute(
-        "SELECT student_id, first_name, last_name, email, grad_year "
-        "FROM Student ORDER BY student_id LIMIT 10",
-        fetchall=True
-    )
-    return render_template('base.html', students=rows or [])
+    return render_template('index.html')

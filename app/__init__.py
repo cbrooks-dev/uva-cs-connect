@@ -6,7 +6,13 @@ from .add import bp as add_bp
 
 def create_app(test_config=None):
     # Create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(
+        __name__,
+        instance_relative_config=True,
+        template_folder='templates',
+        static_folder='static',
+        static_url_path='/static'
+    )
     app.config.from_mapping(
         SECRET_KEY='dev',
     )
