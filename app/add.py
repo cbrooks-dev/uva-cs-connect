@@ -136,3 +136,38 @@ def add_event():
             return redirect(url_for('some_page'))  # TODO: replace with actual route
 
     return render_template('something.html')  # TODO: handle non-POST or return something after flash
+
+
+# TODO: add experience route
+
+
+@bp.route("/skill", methods=['POST'])
+def add_skill():
+    if request.method == 'POST':
+        skill_id = request.form.get('skill_id')
+        name = request.form.get('name')  # TODO: ensure unique name
+        error = None
+
+        if not skill_id:
+            error = 'Skill ID is required.'
+        elif not name:
+            error = 'Name is required.'
+
+        if error is not None:
+            flash(error)
+        else:
+            execute(
+                '''
+                INSERT INTO Skill (skill_id, name)
+                VALUES (?, ?)
+                ''',
+                (
+                    skill_id,
+                    name
+                ),
+                commit=True
+            )
+            flash('Skill added successfully!')
+            return redirect(url_for('some_page'))  # TODO: replace with actual route
+
+    return render_template('something.html')  # TODO: handle non-POST or return something after flash
