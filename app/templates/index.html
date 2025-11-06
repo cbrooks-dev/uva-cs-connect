@@ -1,13 +1,94 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="text-center mt-5">
-    <h1 class="display-4 fw-semibold">Welcome to UVA CS Connect!</h1>
+<!-- Hero Section -->
+<section class="text-center mt-2">
+    <!-- Rotunda Image -->
+    <img src="{{ url_for('static', filename='assets/rotunda2.png') }}"
+         alt="Rotunda"
+         class="img-fluid mb-3"
+         style="max-width: 900px; height: 300px;">
+
+    <!-- Title and Description -->
+    <h1 class="display-4 fw-bold text-dark">Welcome to UVA CS Connect!</h1>
     <p class="lead text-muted mt-3">
-        Your Flask app is up and running locally 🎉
+        Connecting UVA Computer Science students through collaboration, mentorship, and innovation.
     </p>
-    <hr class="my-4">
-    <p>Use the navigation bar above to explore pages as you build them out.</p>
-    <a href="#" class="btn btn-dark mt-2">Get Started</a>
-</div>
+
+</section>
+<!-- About Section -->
+<section class="my-5 text-center">
+    <h2 class="fw-bold mb-4" style="color: #002f6c;">Who We Are</h2>
+    <div class="container">
+        <p class="fs-5 text-muted mx-auto" style="max-width: 850px;">
+            CS Connect is a student-driven platform built by and for the UVA Computer Science community.
+            Our mission is to strengthen collaboration, connection, and opportunity among CS students —
+            whether you’re exploring your first coding class, preparing for internships, or working on passion projects.
+            We believe that innovation thrives when students support one another, share knowledge, and grow together.
+        </p>
+    </div>
+</section>
+
+<!-- What We Do Section -->
+<section class="my-5 py-4" style="background-color: #f5f6fa;">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-5" style="color: #002f6c;">What We Do</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #e57200;">🤝 Peer Networking</h5>
+                        <p class="card-text text-muted">
+                            We connect UVA CS students through events, projects, and mentorship —
+                            helping you find collaborators, teammates, and friends who share your passions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #e57200;">💼 Career Growth</h5>
+                        <p class="card-text text-muted">
+                            Get guidance from upperclassmen and alumni on internships, technical interviews,
+                            and career paths in software engineering, research, and entrepreneurship.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold" style="color: #e57200;">🚀 Innovation</h5>
+                        <p class="card-text text-muted">
+                            Work on real-world projects — from student-built web apps to open-source tools —
+                            all powered by collaboration within the UVA CS ecosystem.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission / Vision Section -->
+<section class="my-5 text-center">
+    <div class="container">
+        <h2 class="fw-bold mb-4" style="color: #002f6c;">Our Mission</h2>
+        <p class="fs-5 text-muted mx-auto" style="max-width: 850px;">
+            UVA CS Connect exists to empower every student to make the most of their journey in technology —
+            not just by learning to code, but by connecting with a community that inspires growth, creativity, and purpose.
+            Together, we’re building a culture of collaboration that makes the UVA CS experience richer for everyone.
+        </p>
+    </div>
+</section>
+
+<!-- Call-to-Action -->
+<section class="text-center my-5">
+    <a href="#" class="btn btn-lg btn-primary px-5 py-3"
+       style="background-color: #002f6c; border-color: #002f6c;">
+        Get Involved Today
+    </a>
+</section>
 {% endblock %}
