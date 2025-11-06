@@ -210,7 +210,6 @@ def add_skill():
     return render_template("something.html")
 
 
-# --- INTEREST ---
 @bp.route("/interest", methods=["POST"])
 def add_interest():
     if request.method == "POST":
@@ -240,7 +239,6 @@ def add_interest():
     return render_template("something.html")
 
 
-# --- AVAILABILITY SLOT ---
 @bp.route("/availability", methods=["POST"])
 def add_availability():
     if request.method == "POST":
@@ -283,7 +281,6 @@ def add_availability():
     return render_template("something.html")
 
 
-# --- MATCH ---
 @bp.route("/match", methods=["POST"])
 def add_match():
     if request.method == "POST":
@@ -318,7 +315,6 @@ def add_match():
     return render_template("something.html")
 
 
-# --- ENROLLMENT ---
 @bp.route("/enrollment", methods=["POST"])
 def add_enrollment():
     if request.method == "POST":
@@ -346,7 +342,6 @@ def add_enrollment():
     return render_template("something.html")
 
 
-# --- ATTENDS ---
 @bp.route("/attends", methods=["POST"])
 def add_attends():
     if request.method == "POST":
@@ -374,7 +369,6 @@ def add_attends():
     return render_template("something.html")
 
 
-# --- ORGANIZES ---
 @bp.route("/organizes", methods=["POST"])
 def add_organizes():
     if request.method == "POST":
@@ -402,7 +396,6 @@ def add_organizes():
     return render_template("something.html")
 
 
-# --- STUDENT SKILL ---
 @bp.route("/student-skill", methods=["POST"])
 def add_student_skill():
     if request.method == "POST":
@@ -430,7 +423,6 @@ def add_student_skill():
     return render_template("something.html")
 
 
-# --- STUDENT INTEREST ---
 @bp.route("/student-interest", methods=["POST"])
 def add_student_interest():
     if request.method == "POST":
@@ -458,7 +450,6 @@ def add_student_interest():
     return render_template("something.html")
 
 
-# --- MATCH PARTICIPATION ---
 @bp.route("/match-participation", methods=["POST"])
 def add_match_participation():
     if request.method == "POST":
