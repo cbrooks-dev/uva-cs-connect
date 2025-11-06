@@ -1,0 +1,64 @@
+{% extends "base.html" %} {% block content %}
+<section class="my-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <h2
+              class="card-title text-center fw-bold mb-4"
+              style="color: #002f6c"
+            >
+              Login
+            </h2>
+            <p class="text-center text-muted mb-4">
+              Access your UVA CS Connect account
+            </p>
+
+            <form method="POST" action="{{ url_for('auth.login') }}">
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  name="email"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  required
+                />
+              </div>
+
+              <div class="d-grid">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  style="background-color: #002f6c; border-color: #002f6c"
+                >
+                  Login
+                </button>
+              </div>
+            </form>
+
+            <p class="text-center text-muted mt-3">
+              Don't have an account?
+              <a href="{{ url_for('auth.register') }}" style="color: #e57200"
+                >Register here</a
+              >.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
