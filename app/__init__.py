@@ -3,6 +3,7 @@ from flask import Flask, request, abort, Response
 from .db import close_db, init_db_command
 from .routes import bp as main_bp
 from .add import bp as add_bp
+from .retrieve import bp as retrieve_bp
 
 def create_app(test_config=None):
     app = Flask(
@@ -38,6 +39,8 @@ def create_app(test_config=None):
     # Register the main blueprint (routes)
     app.register_blueprint(main_bp)
     app.register_blueprint(add_bp)
+
+    app.register_blueprint(retrieve_bp, url_prefix="/get") 
 
     # Register CLI command (flask init-db)
     app.cli.add_command(init_db_command)

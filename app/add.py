@@ -36,7 +36,7 @@ def add_student():
             execute(
                 """
                 INSERT INTO Student (student_id, first_name, last_name, email, grad_year, password)
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s)
                 """,
                 (
                     student_id,
@@ -49,13 +49,9 @@ def add_student():
                 commit=True,
             )
             flash("Student added successfully!")
-            return redirect(
-                url_for("some_page")
-            )  # TODO: replace with actual route (do this for every route!)
+            return redirect(url_for("main.demo"))
 
-    return render_template(
-        "something.html"
-    )  # TODO: handle non-POST or return something after flash (do this for every route!)
+    return render_template("something.html")
 
 
 @bp.route("/course", methods=["POST"])
@@ -80,13 +76,13 @@ def add_course():
             execute(
                 """
                 INSERT INTO Course (course_id, title, year, section)
-                VALUES (?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s)
                 """,
                 (course_id, title, year, section if section else None),
                 commit=True,
             )
             flash("Course added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -118,7 +114,7 @@ def add_event():
             execute(
                 """
                 INSERT INTO Event (event_id, title, description, type, start_datetime, end_datetime, location)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     event_id,
@@ -132,7 +128,7 @@ def add_event():
                 commit=True,
             )
             flash("Event added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -162,7 +158,7 @@ def add_experience():
             execute(
                 """
                 INSERT INTO Experience (experience_id, student_id, job_title, organization, start_date, end_date, description)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     experience_id,
@@ -176,7 +172,7 @@ def add_experience():
                 commit=True,
             )
             flash("Experience added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -199,13 +195,13 @@ def add_skill():
             execute(
                 """
                 INSERT INTO Skill (skill_id, name)
-                VALUES (?, ?)
+                VALUES (%s, %s)
                 """,
                 (skill_id, name),
                 commit=True,
             )
             flash("Skill added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -228,13 +224,13 @@ def add_interest():
             execute(
                 """
                 INSERT INTO Interest (interest_id, name)
-                VALUES (?, ?)
+                VALUES (%s, %s)
                 """,
                 (interest_id, name),
                 commit=True,
             )
             flash("Interest added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -264,7 +260,7 @@ def add_availability():
             execute(
                 """
                 INSERT INTO AvailabilitySlot (slot_id, student_id, start_time, end_time, day_of_week)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s)
                 """,
                 (
                     slot_id,
@@ -276,7 +272,7 @@ def add_availability():
                 commit=True,
             )
             flash("Availability slot added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -299,7 +295,7 @@ def add_match():
             execute(
                 """
                 INSERT INTO `Match` (match_id, status, match_score, capacity)
-                VALUES (?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s)
                 """,
                 (
                     match_id,
@@ -310,7 +306,7 @@ def add_match():
                 commit=True,
             )
             flash("Match added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -331,13 +327,13 @@ def add_enrollment():
             execute(
                 """
                 INSERT INTO Enrollment (student_id, course_id)
-                VALUES (?, ?)
+                VALUES (%s, %s)
                 """,
                 (student_id, course_id),
                 commit=True,
             )
             flash("Enrollment added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -358,13 +354,13 @@ def add_attends():
             execute(
                 """
                 INSERT INTO Attends (student_id, event_id)
-                VALUES (?, ?)
+                VALUES (%s, %s)
                 """,
                 (student_id, event_id),
                 commit=True,
             )
             flash("Attendance added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -385,13 +381,13 @@ def add_organizes():
             execute(
                 """
                 INSERT INTO Organizes (student_id, event_id)
-                VALUES (?, ?)
+                VALUES (%s, %s)
                 """,
                 (student_id, event_id),
                 commit=True,
             )
             flash("Organizer link added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -412,13 +408,13 @@ def add_student_skill():
             execute(
                 """
                 INSERT INTO StudentSkill (student_id, skill_id)
-                VALUES (?, ?)
+                VALUES (%s, %s)
                 """,
                 (student_id, skill_id),
                 commit=True,
             )
             flash("Student skill added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -439,13 +435,13 @@ def add_student_interest():
             execute(
                 """
                 INSERT INTO StudentInterest (student_id, interest_id)
-                VALUES (?, ?)
+                VALUES (%s, %s)
                 """,
                 (student_id, interest_id),
                 commit=True,
             )
             flash("Student interest added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
 
@@ -466,12 +462,12 @@ def add_match_participation():
             execute(
                 """
                 INSERT INTO MatchParticipation (student_id, match_id)
-                VALUES (?, ?)
+                VALUES (%s, %s)
                 """,
                 (student_id, match_id),
                 commit=True,
             )
             flash("Match participation added successfully!")
-            return redirect(url_for("some_page"))
+            return redirect(url_for("main.demo"))
 
     return render_template("something.html")
