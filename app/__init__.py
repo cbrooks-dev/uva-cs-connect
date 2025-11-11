@@ -40,8 +40,6 @@ def create_app(test_config=None):
     app.register_blueprint(main_bp)
     app.register_blueprint(add_bp)
 
-    # Register additional blueprints
-    app.register_blueprint(add_bp)                 # your POST routes
     app.register_blueprint(retrieve_bp, url_prefix="/get") 
 
     # Register CLI command (flask init-db)

@@ -1,6 +1,5 @@
-# app/retrieve.py
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
-from werkzeug.security import generate_password_hash  # included to mirror add.py imports
+from werkzeug.security import generate_password_hash  
 from .db import execute
 
 bp = Blueprint("retrieve", __name__)
@@ -67,7 +66,7 @@ def get_event(event_id: int):
         return jsonify({"error": "Not found"}), 404
     return jsonify(row)
 
-# --------- Experiences (by student) ----------
+# --------- Experiences ----------
 @bp.get("/students/<int:student_id>/experiences")
 def get_student_experiences(student_id: int):
     rows = execute("""
@@ -79,7 +78,7 @@ def get_student_experiences(student_id: int):
     """, (student_id, _limit()), fetchall=True)
     return jsonify(rows)
 
-# --------- Skills / Interests ----------
+# --------- Skills/Interests ----------
 @bp.get("/skills")
 def get_skills():
     rows = execute("""
@@ -100,7 +99,7 @@ def get_interests():
     """, (_limit(),), fetchall=True)
     return jsonify(rows)
 
-# --------- Availability (by student) ----------
+# --------- Availability ----------
 @bp.get("/students/<int:student_id>/availability")
 def get_student_availability(student_id: int):
     rows = execute("""
@@ -123,7 +122,7 @@ def get_matches():
     """, (_limit(),), fetchall=True)
     return jsonify(rows)
 
-# --------- Enrollment / Attends / Organizes (by student) ----------
+# --------- Enrollment/ Attends / Organizes----------
 @bp.get("/students/<int:student_id>/enrollments")
 def get_student_enrollments(student_id: int):
     rows = execute("""
@@ -160,7 +159,7 @@ def get_student_organizes(student_id: int):
     """, (student_id, _limit()), fetchall=True)
     return jsonify(rows)
 
-# --------- Student <-> Skills / Interests ----------
+# --------- Student <-> Skills /Interests ----------
 @bp.get("/students/<int:student_id>/skills")
 def get_student_skills(student_id: int):
     rows = execute("""

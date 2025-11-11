@@ -1,11 +1,9 @@
-import mysql.connector
-import os
+# app/db.py
+import mysql.connector, os
 from dotenv import load_dotenv
-
 from flask import g, current_app
 import click
 from pathlib import Path
-# Load environment variables
 load_dotenv()
 
 def get_db():
@@ -14,7 +12,8 @@ def get_db():
             host=os.getenv('DB_HOST'),
             user=os.getenv('DB_USER'),
             password=os.getenv('DB_PASSWORD'),
-            database=os.getenv('DB_NAME'), 
+            database=os.getenv('DB_NAME'),
+            port=int(os.getenv('DB_PORT', '3306')),
             autocommit=False,
         )
     return g.db
@@ -26,7 +25,7 @@ def close_db(e=None):
 
 def execute(query, params=None, *, fetchone=False, fetchall=False, commit=False, multi=False):
     db = get_db()
-    cursor = db.cursor(dictionary=True, buffered=True)  # buffer results so nothing is left unread
+    cursor = db.cursor(dictionary=True, buffered=True)  
     try:
         if multi:
             for statement in query.split(';'):
@@ -36,7 +35,7 @@ def execute(query, params=None, *, fetchone=False, fetchall=False, commit=False,
         else:
             cursor.execute(query, params or ())
 
-        # fetch results if requested (this also consumes the result set)
+
         result = None
         if fetchone:
             result = cursor.fetchone()
