@@ -17,3 +17,13 @@ def index():
 @bp.route("/demo")
 def demo():
     return render_template('demo.html')
+
+
+@bp.route("/login")
+def login():
+    return render_template("login.html")
+
+
+@bp.route("/register")
+def register():
+    return render_template("register.html")
