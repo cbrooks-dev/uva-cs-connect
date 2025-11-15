@@ -17,3 +17,7 @@ def index():
 @bp.route("/demo")
 def demo():
     return render_template('demo.html')
+
+@bp.route("/about")
+def about():
+    return render_template("about.html")
