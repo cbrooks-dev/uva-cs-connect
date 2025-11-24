@@ -1,101 +1,73 @@
-{% extends "base.html" %} {% block content %}
-<section class="my-5">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm border-0">
-          <div class="card-body p-4">
-            <h2
-              class="card-title text-center fw-bold mb-4"
-              style="color: #002f6c"
-            >
-              Create an Account
-            </h2>
-            <p class="text-center text-muted mb-4">
-              Join UVA CS Connect to collaborate and network with your peers.
-            </p>
+{% extends "base.html" %}
+{% block content %}
 
-            <form method="POST" action="{{ url_for('auth.register') }}">
-              <div class="mb-3">
-                <label for="first_name" class="form-label">First Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="first_name"
-                  name="first_name"
-                  required
-                />
-              </div>
-
-              <div class="mb-3">
-                <label for="last_name" class="form-label">Last Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="last_name"
-                  name="last_name"
-                  required
-                />
-              </div>
-
-              <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  id="email"
-                  name="email"
-                  required
-                />
-              </div>
-
-              <div class="mb-3">
-                <label for="grad_year" class="form-label"
-                  >Graduation Year</label
-                >
-                <input
-                  type="number"
-                  class="form-control"
-                  id="grad_year"
-                  name="grad_year"
-                  placeholder="2025"
-                  min="2025"
-                  max="2035"
-                />
-              </div>
-
-              <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="password"
-                  name="password"
-                  required
-                />
-              </div>
-
-              <div class="d-grid">
-                <button
-                  type="submit"
-                  class="btn btn-primary"
-                  style="background-color: #002f6c; border-color: #002f6c"
-                >
-                  Register
-                </button>
-              </div>
-            </form>
-
-            <p class="text-center text-muted mt-3">
-              Already have an account?
-              <a href="{{ url_for('auth.login') }}" style="color: #e57200"
-                >Login here</a
-              >.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- Hero Header -->
+<section class="text-center mb-5">
+    <h1 class="display-5 fw-bold text-dark">Create an Account</h1>
+    <p class="lead text-muted">Join the UVA CS Connect community</p>
 </section>
+
+<!-- Registration Form -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <!-- Flash messages -->
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <div class="alert alert-warning text-center" role="alert">
+                        {{ messages[0] }}
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    <h3 class="fw-bold text-center mb-4" style="color: #002f6c;">Register</h3>
+
+                    <form method="POST" action="{{ url_for('main.register') }}">
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   placeholder="student@virginia.edu" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="grad_year" class="form-label">Graduation Year</label>
+                            <input type="number" class="form-control" id="grad_year" name="grad_year"
+                                   placeholder="e.g. 2026" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required />
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary"
+                                    style="background-color: #002f6c; border-color: #002f6c;">
+                                Register
+                            </button>
+                        </div>
+                    </form>
+
+                    <p class="text-center text-muted mt-4 mb-0">
+                        Already have an account?
+                        <a href="{{ url_for('main.login') }}" style="color: #e57200;">Log in here</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
