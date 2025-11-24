@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- About Hero -->
+<section class="text-center mb-5">
+    <h1 class="display-5 fw-bold text-dark">About UVA CS Connect</h1>
+    <p class="lead text-muted mx-auto" style="max-width: 800px;">
+        UVA CS Connect began as a student-led initiative to strengthen the culture of collaboration
+        within the Computer Science community at the University of Virginia.
+        Our goal is to make connection and opportunity as integral to UVA CS as the classroom experience itself.
+    </p>
+</section>
+
+<!-- Story / Origins -->
+<section class="py-5" style="background-color:#f5f6fa;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <img src="{{ url_for('static', filename='assets/rotunda.png') }}"
+                     alt="UVA Rotunda"
+                     class="img-fluid rounded shadow-sm"
+                     style="max-width: 400px;">
+            </div>
+            <div class="col-md-6">
+                <h3 class="fw-bold" style="color:#002f6c;">Our Story</h3>
+                <p class="text-muted fs-5">
+                    What started as a small peer-networking group has evolved into a vibrant platform connecting
+                    hundreds of UVA CS students across disciplines and career interests.
+                    From study groups and technical workshops to mentorship and project teams,
+                    CS Connect empowers students to learn collaboratively and apply their skills beyond the classroom.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Vision & Values -->
+<section class="container my-5 text-center">
+    <h2 class="fw-bold mb-4" style="color:#002f6c;">Our Vision</h2>
+    <p class="fs-5 text-muted mx-auto" style="max-width:850px;">
+        We believe that real learning happens in community.
+        UVA CS Connect envisions a department where collaboration is second nature,
+        where students have access to peers, mentors, and resources that inspire confidence and growth.
+    </p>
+
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <h5 class="fw-bold" style="color:#e57200;">🤝 Community</h5>
+            <p class="text-muted">We build genuine connections that extend beyond coursework and semesters.</p>
+        </div>
+        <div class="col-md-4">
+            <h5 class="fw-bold" style="color:#e57200;">🚀 Innovation</h5>
+            <p class="text-muted">We encourage creativity through collaborative projects and shared technical challenges.</p>
+        </div>
+        <div class="col-md-4">
+            <h5 class="fw-bold" style="color:#e57200;">🎓 Mentorship</h5>
+            <p class="text-muted">We connect students at every level — from first-years to alumni — for guidance and growth.</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

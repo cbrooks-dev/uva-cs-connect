@@ -13,6 +13,14 @@ def health():
 def index():
     return render_template('index.html')
 
+@bp.route('/login', methods=['GET'])
+def login():
+    return render_template('login.html')
+
+@bp.route('/about', methods=['GET'])
+def about():
+    return render_template('about.html')
+
 @bp.route('/events')
 def events():
     return render_template('events.html')
