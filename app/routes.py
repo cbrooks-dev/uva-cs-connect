@@ -13,7 +13,11 @@ def health():
 def index():
     return render_template('index.html')
 
+@bp.route('/events')
+def events():
+    return render_template('events.html')
 
 @bp.route("/demo")
 def demo():
     return render_template('demo.html')
+
