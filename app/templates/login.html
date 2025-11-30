@@ -26,7 +26,7 @@
                         Welcome Back
                     </h3>
 
-                    <form method="POST" action="{{ url_for('main.login') }}">
+                    <form method="POST" action="{{ url_for('auth.login') }}">
                         <div class="mb-3">
                             <label for="email" class="form-label">Email address</label>
                             <input
@@ -64,7 +64,7 @@
 
                     <p class="text-center text-muted mt-4 mb-0">
                         Don’t have an account?
-                        <a href="/register" style="color: #e57200;">Register here</a>.
+                        <a href="{{ url_for('auth.register') }}" style="color: #e57200;">Register here</a>.
                     </p>
                 </div>
             </div>

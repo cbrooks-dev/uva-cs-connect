@@ -95,7 +95,7 @@
 <section class="text-center py-5">
     <h2 class="fw-bold mb-3" style="color:#002f6c;">Be Part of the Connection</h2>
     <p class="text-muted fs-5 mb-4">CS Connect is powered by students like you — driven to create, share, and grow together.</p>
-    <a href="/login" class="btn btn-lg btn-primary px-5" style="background-color:#002f6c; border:none;">Join the Community</a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-primary px-5" style="background-color:#002f6c; border:none;">Join the Community</a>
 </section>
 
 {% endblock %}
