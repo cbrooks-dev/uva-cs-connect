@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from .db import execute
+from .db import execute, get_db, close_db
 
 bp = Blueprint("main", __name__)
 
@@ -23,7 +23,13 @@ def about():
 
 @bp.route("/events")
 def events():
-    return render_template("events.html")
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM events ORDER BY date ASC")
+    events = cursor.fetchall()
+    cursor.close()
+    close_db()
+    return render_template("events.html", events=events)
 
 
 @bp.route("/demo")
