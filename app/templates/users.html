@@ -2,16 +2,6 @@
 
 {% block content %}
 
-<!DOCTYPE html>
-
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community Members</title>
-</head>
-<body>
-
 <section class="text-center mb-5 py-5">
     <div class="container">
         <h1 class="display-5 fw-bold text-dark">Our Community Members</h1>
@@ -26,19 +16,13 @@
         <div class="col-md-6 col-lg-4 mb-4">
             <div class="card h-100 shadow-sm border-0 text-center">
                 <div class="card-body">
-                    <img src="{{ user.profile_picture }}" class="rounded-circle mb-3" alt="{{ user.name }}" width="100" height="100">
-                    <h5 class="card-title fw-bold" style="color: #002f6c;">{{ user.name }}</h5>
-                    <p class="card-text text-muted">{{ user.bio }}</p>
-                    <p class="text-secondary mb-1"><strong>Role:</strong> {{ user.role }}</p>
+                    <h5 class="card-title fw-bold" style="color: #002f6c;">{{ user.first_name }} {{ user.last_name }}</h5>
                     <p class="text-secondary mb-1"><strong>Email:</strong> <a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
-                    <a href="{{ user.profile_link }}" class="btn btn-dark mt-3">View Profile</a>
+                    <p class="text-secondary mb-1"><strong>Graduation Year:</strong> {{ user.grad_year }}</p>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
 </div>
-
-</body>
-</html>
 {% endblock %}
