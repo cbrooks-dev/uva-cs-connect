@@ -5,6 +5,7 @@ from .routes import bp as main_bp
 from .add import bp as add_bp
 from .retrieve import bp as retrieve_bp
 from .auth.auth import bp as auth_bp
+from .profile import bp as profile_bp
 
 def create_app(test_config=None):
     app = Flask(
@@ -41,6 +42,7 @@ def create_app(test_config=None):
     app.register_blueprint(main_bp)
     app.register_blueprint(add_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(profile_bp)
 
     app.register_blueprint(retrieve_bp, url_prefix="/get") 
 

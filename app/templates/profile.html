@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-messages">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="container mt-4">
+  <h2 class="mb-4 text-center fw-bold">Edit Profile</h2>
+
+  <div class="row">
+    <!-- LEFT SIDE: PROFILE PIC -->
+    <div class="col-md-4 text-center">
+
+      <img src="{{ url_for('static', filename='uploads/profile_pics/' ~ (user.profile_pic or 'default_avatar.png')) }}"
+           class="rounded-circle mb-3"
+           width="180" height="180"
+           style="object-fit: cover;">
+
+      <!-- Upload form -->
+      <form action="{{ url_for('profile.upload_photo') }}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="photo" accept="image/*" class="form-control mb-2">
+        <button class="btn btn-primary w-100" type="submit">Upload New Photo</button>
+      </form>
+    </div>
+
+    <!-- RIGHT SIDE: TEXT INFO -->
+    <div class="col-md-8">
+
+      <form action="{{ url_for('profile.update_profile') }}" method="POST">
+
+        <div class="mb-3">
+          <label class="form-label">First Name</label>
+          <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Last Name</label>
+          <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" value="{{ user.email }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Graduation Year</label>
+          <input type="number" name="grad_year" class="form-control" value="{{ user.grad_year }}">
+        </div>
+
+        <button class="btn btn-success w-100 mt-2" type="submit">Save Changes</button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
