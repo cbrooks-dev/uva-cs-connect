@@ -63,7 +63,7 @@ def upload_photo():
         return redirect(url_for("profile.view_profile"))
 
     if file and allowed_file(file.filename):
-        filename = secure_filename(f"user_{g.user['id']}_{file.filename}")
+        filename = secure_filename(f"user_{g.user['student_id']}_{file.filename}")
         filepath = os.path.join(UPLOAD_FOLDER, filename)
 
         # Save file
