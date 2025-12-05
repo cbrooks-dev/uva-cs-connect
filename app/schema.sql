@@ -28,6 +28,7 @@ CREATE TABLE Student (
     email      VARCHAR(100) UNIQUE NOT NULL,
     grad_year  INT,
     password   VARCHAR(255) NOT NULL,
+    profile_pic VARCHAR(255) DEFAULT NULL,
     CONSTRAINT check_grad_year CHECK (grad_year BETWEEN 2025 AND 2035)
 );
 
