@@ -32,6 +32,17 @@ def events():
     return render_template("events.html", events=events)
 
 
+@bp.route("/users")
+def users():
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users ORDER BY name ASC")
+    users = cursor.fetchall()
+    cursor.close()
+    close_db()
+    return render_template("profiles.html", users=users)
+
+
 @bp.route("/demo")
 def demo():
     return render_template("demo.html")
