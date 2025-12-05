@@ -36,8 +36,8 @@ def update_profile():
     cursor.execute("""
         UPDATE Student
         SET first_name=%s, last_name=%s, email=%s, grad_year=%s
-        WHERE id=%s
-    """, (first, last, email, grad_year, g.user['id']))
+        WHERE student_id=%s
+    """, (first, last, email, grad_year, g.user['student_id']))
 
     conn.commit()
     cursor.close()
@@ -75,8 +75,8 @@ def upload_photo():
         cursor.execute("""
             UPDATE Student
             SET profile_pic=%s
-            WHERE id=%s
-        """, (filename, g.user['id']))
+            WHERE student_id=%s
+        """, (filename, g.user['student_id']))
         conn.commit()
         cursor.close()
         close_db()
