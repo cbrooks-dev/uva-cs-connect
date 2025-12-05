@@ -115,12 +115,13 @@
             </li>
           </ul>
 
-          <!-- Search Form -->
+          {% if request.path.startswith('/users') or
+          request.path.startswith('/events') %}
           <form
             class="d-flex me-3"
             role="search"
             method="get"
-            action="{% if request.path == '/users' %}/users{% elif request.path == '/events' %}/events{% else %}#{% endif %}"
+            action="{{ request.path }}"
           >
             <input
               class="form-control me-2"
@@ -132,6 +133,7 @@
             />
             <button class="btn btn-outline-light" type="submit">Search</button>
           </form>
+          {% endif %}
 
           <!-- Login / Logout -->
           {% if g.user %}
