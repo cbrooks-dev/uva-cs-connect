@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, g
 from .db import execute, get_db, close_db
 from app.sort import sort_users, sort_events
 from datetime import datetime
@@ -43,11 +43,21 @@ def events():
 
     cursor.execute(query, params)
     events = cursor.fetchall()
-    cursor.close()
-    conn.close()
 
-    # Separate date and time for template
+    # Fetch attendees for each event
     for event in events:
+        cursor.execute(
+            """
+            SELECT s.first_name, s.last_name
+            FROM Attends a
+            JOIN Student s ON a.student_id = s.student_id
+            WHERE a.event_id = %s
+            """,
+            (event['event_id'],)
+        )
+        event['attendees'] = cursor.fetchall()
+
+        # Separate date and time for template
         for key in ["start_datetime", "end_datetime"]:
             if event.get(key):
                 dt = event[key]
@@ -56,8 +66,10 @@ def events():
                 event[f"{key}_date"] = dt.strftime("%m/%d/%Y")       # Date
                 event[f"{key}_time"] = dt.strftime("%I:%M %p").lstrip("0")  # 12-hour time without leading zero
 
-    return render_template("events.html", events=events, search=search, sort=sort_key)
+    cursor.close()
+    conn.close()
 
+    return render_template("events.html", events=events, search=search, sort=sort_key, g=g)
 
 
 @bp.route("/users")
@@ -145,3 +157,4 @@ def users():
 @bp.route("/demo")
 def demo():
     return render_template("demo.html")
+

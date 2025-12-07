@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
-
+from .db import get_db
 from .db import execute
 
 bp = Blueprint("add", __name__)
@@ -471,3 +471,60 @@ def add_match_participation():
             return redirect(url_for("main.demo"))
 
     return render_template("something.html")
+
+@bp.route("/create_event", methods=["GET", "POST"])
+def create_event():
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    if request.method == "POST":
+        title = request.form["title"]
+        description = request.form["description"]
+        start_datetime = request.form["start_datetime"]
+        end_datetime = request.form["end_datetime"]
+        location = request.form["location"]
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO Event (title, description, start_datetime, end_datetime, location, created_by)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (title, description, start_datetime, end_datetime, location, g.user["student_id"]))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for("main.events"))
+
+    return render_template("create_event.html")
+
+@bp.route('/attend_event/<int:event_id>', methods=['POST'])
+def attend_event(event_id):
+    if not g.user:
+        flash("You need to be logged in to attend events.", "warning")
+        return redirect(url_for("main.events"))
+
+    student_id = g.user['student_id']  # adjust based on your g.user
+
+    db = get_db()
+    cursor = db.cursor(dictionary=True)  # dictionary=True makes fetchone return a dict
+
+    # Check if already attending
+    cursor.execute(
+        "SELECT * FROM Attends WHERE student_id = %s AND event_id = %s",
+        (student_id, event_id)
+    )
+    existing = cursor.fetchone()
+
+    if existing:
+        flash("You are already attending this event!", "warning")
+    else:
+        cursor.execute(
+            "INSERT INTO Attends (student_id, event_id) VALUES (%s, %s)",
+            (student_id, event_id)
+        )
+        db.commit()
+        flash("You are now attending this event!", "success")
+
+    cursor.close()
+    return redirect(url_for('main.events'))
