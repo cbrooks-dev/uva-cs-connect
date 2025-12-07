@@ -10,6 +10,20 @@
     </div>
 </section>
 
+<div class="container mb-4">
+    <div class="d-flex justify-content-end">
+        <div class="dropdown">
+            <button class="btn btn-dark dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Sort by
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('main.users', sort='alpha') }}">Alphabetically (A-Z)</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('main.users', sort='year') }}">Graduation Year</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
 <div class="container">
     <div class="row justify-content-center">
         {% for user in users %}
@@ -18,7 +32,7 @@
 
                 <!-- PROFILE PICTURE -->
                 <div class="p-3">
-                    <img 
+                    <img
                         src="{% if user.profile_pic %}{{ url_for('static/uploads', filename='profile_pics/' ~ user.profile_pic) }}{% else %}{{ url_for('static', filename='uploads/profile_pics/default_avatar.png') }}{% endif %}"
                         class="rounded-circle img-fluid"
                         style="width: 140px; height: 140px; object-fit: cover;"
