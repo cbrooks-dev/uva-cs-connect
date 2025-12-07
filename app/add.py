@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
-
+from .db import get_db
 from .db import execute
 
 bp = Blueprint("add", __name__)
@@ -471,3 +471,29 @@ def add_match_participation():
             return redirect(url_for("main.demo"))
 
     return render_template("something.html")
+
+@bp.route("/create_event", methods=["GET", "POST"])
+def create_event():
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    if request.method == "POST":
+        title = request.form["title"]
+        description = request.form["description"]
+        start_datetime = request.form["start_datetime"]
+        end_datetime = request.form["end_datetime"]
+        location = request.form["location"]
+
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO Event (title, description, start_datetime, end_datetime, location, created_by)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (title, description, start_datetime, end_datetime, location, g.user["student_id"]))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return redirect(url_for("main.events"))
+
+    return render_template("create_event.html")
