@@ -77,6 +77,7 @@ def users():
             s.last_name,
             s.email,
             s.grad_year,
+            s.profile_pic,
             GROUP_CONCAT(DISTINCT sk.name ORDER BY sk.name SEPARATOR ', ') AS skills
         FROM Student s
         LEFT JOIN StudentSkill ss ON s.student_id = ss.student_id
@@ -107,10 +108,15 @@ def users():
         search_term = f"%{search}%"
         params.extend([search_term, search_term, search_term])
 
-    # Group by student
+    # Group by student (include profile_pic)
     query += """
         GROUP BY
-            s.student_id, s.first_name, s.last_name, s.email, s.grad_year
+            s.student_id,
+            s.first_name,
+            s.last_name,
+            s.email,
+            s.grad_year,
+            s.profile_pic
     """
 
     # Sorting
@@ -135,8 +141,9 @@ def users():
         all_skills=all_skills,
         selected_skill=selected_skill if selected_skill else "",
         search=search,
-        sort=sort
+        sort=sort,
     )
+
 
 
 @bp.route("/demo")

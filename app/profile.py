@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, g
+from flask import Blueprint, render_template, request, redirect, url_for, flash, g, current_app
 from werkzeug.utils import secure_filename
 import os
 from app.db import get_db, close_db
@@ -22,7 +22,7 @@ def view_profile():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-
+    # User's skills
     cursor.execute(
         """
         SELECT s.skill_id, s.name
@@ -35,7 +35,7 @@ def view_profile():
     )
     skills = cursor.fetchall()
 
-
+    # All skills for dropdown
     cursor.execute("SELECT skill_id, name FROM Skill ORDER BY name")
     all_skills = cursor.fetchall()
 
@@ -45,8 +45,8 @@ def view_profile():
     return render_template(
         "profile.html",
         user=g.user,
-        skills=skills,        
-        all_skills=all_skills 
+        skills=skills,
+        all_skills=all_skills,
     )
 
 
@@ -63,11 +63,14 @@ def update_profile():
     conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         UPDATE Student
         SET first_name=%s, last_name=%s, email=%s, grad_year=%s
         WHERE student_id=%s
-    """, (first, last, email, grad_year, g.user['student_id']))
+        """,
+        (first, last, email, grad_year, g.user["student_id"]),
+    )
 
     conn.commit()
     cursor.close()
@@ -93,20 +96,31 @@ def upload_photo():
         return redirect(url_for("profile.view_profile"))
 
     if file and allowed_file(file.filename):
+        # Make a safe filename like user_3_originalname.png
         filename = secure_filename(f"user_{g.user['student_id']}_{file.filename}")
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
 
-        # Save file
+        # Build an absolute path to static/uploads/profile_pics
+        upload_dir = os.path.join(
+            current_app.root_path, "static", "uploads", "profile_pics"
+        )
+        os.makedirs(upload_dir, exist_ok=True)
+
+        filepath = os.path.join(upload_dir, filename)
+
+        # Save file to disk
         file.save(filepath)
 
-        # Update database
+        # Update database with just the filename
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE Student
             SET profile_pic=%s
             WHERE student_id=%s
-        """, (filename, g.user['student_id']))
+            """,
+            (filename, g.user["student_id"]),
+        )
         conn.commit()
         cursor.close()
         close_db()
@@ -114,8 +128,9 @@ def upload_photo():
         flash("Profile picture updated!", "success")
         return redirect(url_for("profile.view_profile"))
 
-    flash("Invalid file type.", "danger")
+    flash("Invalid file type. Please upload a PNG, JPG, or GIF.", "danger")
     return redirect(url_for("profile.view_profile"))
+
 
 @bp.route("/add_skill", methods=["POST"])
 def add_skill():
@@ -129,11 +144,9 @@ def add_skill():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-
     if existing_skill_id:
         skill_id = int(existing_skill_id)
     elif skill_name:
-
         cursor.execute("SELECT skill_id FROM Skill WHERE name = %s", (skill_name,))
         row = cursor.fetchone()
         if row:
@@ -148,7 +161,6 @@ def add_skill():
         close_db()
         flash("Please choose a skill or type a new one.", "danger")
         return redirect(url_for("profile.view_profile"))
-
 
     cursor.execute(
         """
@@ -173,6 +185,7 @@ def add_skill():
     cursor.close()
     close_db()
     return redirect(url_for("profile.view_profile"))
+
 
 @bp.route("/delete_skill", methods=["POST"])
 def delete_skill():
@@ -202,13 +215,10 @@ def delete_skill():
     flash("Skill removed from your profile.", "success")
     return redirect(url_for("profile.view_profile"))
 
+
 @bp.route("/edit_skill", methods=["POST"])
 def edit_skill():
-    """Change how a skill appears on the user's profile.
-
-    Implementation: create/use a skill with the new name and
-    point this user's StudentSkill row at that skill.
-    """
+    """Change how a skill appears on the user's profile."""
     if not g.user:
         return redirect(url_for("auth.login"))
 
@@ -222,7 +232,7 @@ def edit_skill():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-
+    # Find or create skill with the new name
     cursor.execute("SELECT skill_id FROM Skill WHERE name = %s", (new_name,))
     row = cursor.fetchone()
     if row:
@@ -233,7 +243,7 @@ def edit_skill():
         cursor.execute("SELECT LAST_INSERT_ID() AS skill_id")
         new_skill_id = cursor.fetchone()["skill_id"]
 
-
+    # If user already has the new skill, just remove the old one
     cursor.execute(
         """
         SELECT 1 FROM StudentSkill
@@ -265,5 +275,3 @@ def edit_skill():
 
     flash("Skill updated.", "success")
     return redirect(url_for("profile.view_profile"))
-
-

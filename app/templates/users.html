@@ -70,7 +70,7 @@
                 <!-- PROFILE PICTURE -->
                 <div class="p-3">
                     <img
-                        src="{% if user.profile_pic %}{{ url_for('static/uploads', filename='profile_pics/' ~ user.profile_pic) }}{% else %}{{ url_for('static', filename='uploads/profile_pics/default_avatar.png') }}{% endif %}"
+                        src="{{ url_for('static', filename='uploads/profile_pics/' ~ (user.profile_pic or 'default_avatar.png')) }}"
                         class="rounded-circle img-fluid"
                         style="width: 140px; height: 140px; object-fit: cover;"
                         alt="Profile picture of {{ user.first_name }} {{ user.last_name }}"
