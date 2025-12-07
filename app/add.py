@@ -497,3 +497,34 @@ def create_event():
         return redirect(url_for("main.events"))
 
     return render_template("create_event.html")
+
+@bp.route('/attend_event/<int:event_id>', methods=['POST'])
+def attend_event(event_id):
+    if not g.user:
+        flash("You need to be logged in to attend events.", "warning")
+        return redirect(url_for("main.events"))
+
+    student_id = g.user['student_id']  # adjust based on your g.user
+
+    db = get_db()
+    cursor = db.cursor(dictionary=True)  # dictionary=True makes fetchone return a dict
+
+    # Check if already attending
+    cursor.execute(
+        "SELECT * FROM Attends WHERE student_id = %s AND event_id = %s",
+        (student_id, event_id)
+    )
+    existing = cursor.fetchone()
+
+    if existing:
+        flash("You are already attending this event!", "warning")
+    else:
+        cursor.execute(
+            "INSERT INTO Attends (student_id, event_id) VALUES (%s, %s)",
+            (student_id, event_id)
+        )
+        db.commit()
+        flash("You are now attending this event!", "success")
+
+    cursor.close()
+    return redirect(url_for('main.events'))

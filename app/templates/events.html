@@ -47,6 +47,30 @@
                     <button class="btn btn-dark mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#desc-{{ event.event_id }}" aria-expanded="false" aria-controls="desc-{{ event.event_id }}">
                         Learn More
                     </button>
+
+                    <!-- Attendees List -->
+                    <div class="mt-2">
+                        <strong>Attending:</strong>
+                        {% if event.attendees %}
+                            <ul class="list-unstyled mb-0">
+                                {% for student in event.attendees %}
+                                    <li>{{ student.first_name }} {{ student.last_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <span>No one has joined yet.</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Attend Button -->
+
+                    <form action="{{ url_for('add.attend_event', event_id=event.event_id) }}" method="POST">
+                    <button type="submit" class="btn btn-primary mt-2"
+                        {% if not g.user %} disabled {% endif %}>
+                        Attend
+                    </button>
+                    </form>
+
                 </div>
             </div>
         </div>
@@ -54,5 +78,3 @@
     </div>
 </div>
 {% endblock %}
-
-
