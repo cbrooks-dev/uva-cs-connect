@@ -80,29 +80,137 @@ def events():
 def users():
     sort = request.args.get("sort", "alpha")
     search = request.args.get("q", "").strip()
+    selected_skill = request.args.get("skill", "")
+
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-    # Base query
-    query = "SELECT student_id, first_name, last_name, email, grad_year FROM Student"
-    params = ()
+    # Base query: students + skills + profile_pic
+    query = """
+        SELECT
+            s.student_id,
+            s.first_name,
+            s.last_name,
+            s.email,
+            s.grad_year,
+            s.profile_pic,
+            GROUP_CONCAT(DISTINCT sk.name ORDER BY sk.name SEPARATOR ', ') AS skills
+        FROM Student s
+        LEFT JOIN StudentSkill ss ON s.student_id = ss.student_id
+        LEFT JOIN Skill sk ON ss.skill_id = sk.skill_id
+        WHERE 1=1
+    """
+    params = []
+
+    # Skill filter — filter by student_id, not by joined skill rows
+    if selected_skill:
+        query += """
+            AND s.student_id IN (
+                SELECT student_id
+                FROM StudentSkill
+                WHERE skill_id = %s
+            )
+        """
+        params.append(selected_skill)
 
     # Search filter
     if search:
-        query += " WHERE first_name LIKE %s OR last_name LIKE %s OR email LIKE %s"
-        params = (f"%{search}%", f"%{search}%", f"%{search}%")
+        query += """ AND (
+            s.first_name LIKE %s OR
+            s.last_name  LIKE %s OR
+            s.email      LIKE %s
+        )"""
+        search_term = f"%{search}%"
+        params.extend([search_term, search_term, search_term])
+
+    # Group by student
+    query += """
+        GROUP BY
+            s.student_id, s.first_name, s.last_name, s.email,
+            s.grad_year, s.profile_pic
+    """
 
     # Sorting
     if sort == "year":
-        query += " ORDER BY grad_year ASC, last_name ASC, first_name ASC"
+        query += " ORDER BY s.grad_year ASC, s.last_name ASC, s.first_name ASC"
     else:
-        query += " ORDER BY last_name ASC, first_name ASC"
+        query += " ORDER BY s.last_name ASC, s.first_name ASC"
 
     cursor.execute(query, params)
     users = cursor.fetchall()
+
+    # ---------- Pull experiences and courses for all these users ----------
+    student_ids = [u["student_id"] for u in users]
+
+    experiences_by_student = {}
+    courses_by_student = {}
+
+    if student_ids:
+        placeholders = ",".join(["%s"] * len(student_ids))
+
+       
+        cursor.execute(
+            f"""
+            SELECT
+                experience_id,
+                student_id,
+                job_title,
+                organization,
+                start_date,
+                end_date,
+                description
+            FROM Experience
+            WHERE student_id IN ({placeholders})
+            ORDER BY start_date DESC
+            """,
+            student_ids,
+        )
+        for row in cursor.fetchall():
+            experiences_by_student.setdefault(row["student_id"], []).append(row)
+
+        
+        cursor.execute(
+            f"""
+            SELECT
+                e.student_id,
+                c.course_id,
+                c.title,
+                c.year,
+                c.section
+            FROM Enrollment e
+            JOIN Course c ON e.course_id = c.course_id
+            WHERE e.student_id IN ({placeholders})
+            ORDER BY c.year DESC, c.title
+            """,
+            student_ids,
+        )
+        for row in cursor.fetchall():
+            courses_by_student.setdefault(row["student_id"], []).append(row)
+
+
+    for u in users:
+        sid = u["student_id"]
+        u["experiences"] = experiences_by_student.get(sid, [])
+        u["courses"] = courses_by_student.get(sid, [])
+
+
+    cursor.execute("SELECT skill_id, name FROM Skill ORDER BY name")
+    all_skills = cursor.fetchall()
+
     cursor.close()
-    close_db()
-    return render_template("users.html", users=users, search=search, sort=sort)
+    conn.close()
+
+    return render_template(
+        "users.html",
+        users=users,
+        all_skills=all_skills,
+        selected_skill=selected_skill if selected_skill else "",
+        search=search,
+        sort=sort,
+    )
+
+
+
 
 @bp.route("/demo")
 def demo():

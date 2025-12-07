@@ -20,7 +20,6 @@
   <div class="row">
     <!-- LEFT SIDE: PROFILE PIC -->
     <div class="col-md-4 text-center">
-
       <img src="{{ url_for('static', filename='uploads/profile_pics/' ~ (user.profile_pic or 'default_avatar.png')) }}"
            class="rounded-circle mb-3"
            width="180" height="180"
@@ -36,8 +35,8 @@
     <!-- RIGHT SIDE: TEXT INFO -->
     <div class="col-md-8">
 
+      <!-- Basic info -->
       <form action="{{ url_for('profile.update_profile') }}" method="POST">
-
         <div class="mb-3">
           <label class="form-label">First Name</label>
           <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
@@ -60,6 +59,168 @@
 
         <button class="btn btn-success w-100 mt-2" type="submit">Save Changes</button>
       </form>
+
+      <!-- ================== SKILLS SECTION ================== -->
+      <hr class="my-4">
+      <h4 class="fw-semibold mb-3">Skills</h4>
+
+      {% if skills %}
+        <ul class="list-group mb-3">
+          {% for skill in skills %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>{{ skill.name }}</span>
+              <form action="{{ url_for('profile.delete_skill') }}" method="POST" class="d-inline">
+                <input type="hidden" name="skill_id" value="{{ skill.skill_id }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">You haven't added any skills yet.</p>
+      {% endif %}
+
+      <form action="{{ url_for('profile.add_skill') }}" method="POST" class="row g-2 mb-4">
+        <div class="col-md-6">
+          <label class="form-label">Choose an existing skill</label>
+          <select name="skill_id" class="form-select">
+            <option value="">-- Select skill --</option>
+            {% for skill in all_skills %}
+              <option value="{{ skill.skill_id }}">{{ skill.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">…or add a new skill</label>
+          <input type="text" name="skill_name" class="form-control"
+                 placeholder="e.g. Python, React, Machine Learning">
+        </div>
+        <div class="col-12">
+          <button class="btn btn-primary w-100 mt-2" type="submit">Add Skill</button>
+        </div>
+      </form>
+      <!-- ==================================================== -->
+
+            <!-- ================== ENROLLMENTS SECTION ================== -->
+      <hr class="my-4">
+      <h4 class="fw-semibold mb-3">Courses</h4>
+
+      {% if enrollments %}
+        <ul class="list-group mb-3">
+          {% for course in enrollments %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ course.title }}</strong>
+                <div class="text-muted">
+                  Year {{ course.year }} — Section {{ course.section }}
+                </div>
+              </div>
+              <form action="{{ url_for('profile.delete_enrollment') }}" method="POST" class="d-inline">
+                <input type="hidden" name="course_id" value="{{ course.course_id }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">You haven't added any courses yet.</p>
+      {% endif %}
+
+      <form action="{{ url_for('profile.add_enrollment') }}" method="POST" class="row g-3 mb-4">
+        <!-- Choose existing course -->
+        <div class="col-md-6">
+          <label class="form-label">Choose an existing course</label>
+          <select name="course_id" class="form-select">
+            <option value="">-- Select course --</option>
+            {% for c in all_courses %}
+              <option value="{{ c.course_id }}">
+                {{ c.title }} ({{ c.year }}, Section {{ c.section }})
+              </option>
+            {% endfor %}
+          </select>
+          <small class="text-muted">Leave this blank if you are adding a new course below.</small>
+        </div>
+
+        <!-- Or add a new course -->
+        <div class="col-md-6">
+          <label class="form-label">…or add a new course</label>
+          <input type="text" name="new_course_title" class="form-control mb-2"
+                 placeholder="Course title, e.g. CS 4750 - Database Systems">
+          <div class="d-flex gap-2">
+            <input type="number" name="new_course_year" class="form-control"
+                   placeholder="Year, e.g. 2025">
+            <input type="text" name="new_course_section" class="form-control"
+                   placeholder="Section, e.g. 001">
+          </div>
+          <small class="text-muted">Fill in title + year + section if this course isn’t in the list.</small>
+        </div>
+
+        <div class="col-12">
+          <button class="btn btn-primary w-100 mt-2" type="submit">Add Course</button>
+        </div>
+      </form>
+
+      <!-- ==================================================== -->
+
+      <!-- ================== EXPERIENCE SECTION ================== -->
+      <hr class="my-4">
+      <h4 class="fw-semibold mb-3">Experience</h4>
+
+      {% if experiences %}
+        <div class="mb-3">
+          {% for exp in experiences %}
+            <div class="card mb-2">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <strong>{{ exp.job_title }}</strong> @ {{ exp.organization }}
+                    <div class="text-muted">
+                      {{ exp.start_date }}{% if exp.end_date %} – {{ exp.end_date }}{% else %} – Present{% endif %}
+                    </div>
+                    {% if exp.description %}
+                      <p class="mb-0 mt-1">{{ exp.description }}</p>
+                    {% endif %}
+                  </div>
+                  <form action="{{ url_for('profile.delete_experience') }}" method="POST">
+                    <input type="hidden" name="experience_id" value="{{ exp.experience_id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted">No experience added yet.</p>
+      {% endif %}
+
+      <form action="{{ url_for('profile.add_experience') }}" method="POST" class="row g-2 mb-4">
+        <div class="col-md-6">
+          <label class="form-label">Job Title</label>
+          <input type="text" name="job_title" class="form-control" placeholder="Software Intern">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Organization</label>
+          <input type="text" name="organization" class="form-control" placeholder="Company name">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Start Date</label>
+          <input type="date" name="start_date" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">End Date (optional)</label>
+          <input type="date" name="end_date" class="form-control">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Description (optional)</label>
+          <textarea name="description" class="form-control" rows="3"
+                    placeholder="What did you work on?"></textarea>
+        </div>
+        <div class="col-12">
+          <button class="btn btn-primary w-100 mt-2" type="submit">Add Experience</button>
+        </div>
+      </form>
+      <!-- ==================================================== -->
 
     </div>
   </div>
