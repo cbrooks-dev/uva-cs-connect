@@ -15,14 +15,14 @@ def allowed_file(filename):
 
 @bp.route("/")
 def view_profile():
-    """Show profile page with current user info + their skills."""
+    """Show profile page with current user info + their skills, courses, experience."""
     if not g.user:
         return redirect(url_for("auth.login"))
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-    # User's skills
+    # ---------- SKILLS for this student ----------
     cursor.execute(
         """
         SELECT s.skill_id, s.name
@@ -35,9 +35,44 @@ def view_profile():
     )
     skills = cursor.fetchall()
 
-    # All skills for dropdown
+    # All possible skills for dropdown
     cursor.execute("SELECT skill_id, name FROM Skill ORDER BY name")
     all_skills = cursor.fetchall()
+
+    # ---------- ENROLLMENTS for this student ----------
+    cursor.execute(
+        """
+        SELECT c.course_id, c.title, c.year, c.section
+        FROM Enrollment e
+        JOIN Course c ON e.course_id = c.course_id
+        WHERE e.student_id = %s
+        ORDER BY c.year DESC, c.title
+        """,
+        (g.user["student_id"],),
+    )
+    enrollments = cursor.fetchall()
+
+    # All available courses (pre-defined)
+    cursor.execute(
+        """
+        SELECT course_id, title, year, section
+        FROM Course
+        ORDER BY year DESC, title
+        """
+    )
+    all_courses = cursor.fetchall()
+
+    # ---------- EXPERIENCE for this student ----------
+    cursor.execute(
+        """
+        SELECT experience_id, job_title, organization, start_date, end_date, description
+        FROM Experience
+        WHERE student_id = %s
+        ORDER BY start_date DESC
+        """,
+        (g.user["student_id"],),
+    )
+    experiences = cursor.fetchall()
 
     cursor.close()
     close_db()
@@ -47,6 +82,9 @@ def view_profile():
         user=g.user,
         skills=skills,
         all_skills=all_skills,
+        enrollments=enrollments,
+        all_courses=all_courses,
+        experiences=experiences,
     )
 
 
@@ -275,3 +313,184 @@ def edit_skill():
 
     flash("Skill updated.", "success")
     return redirect(url_for("profile.view_profile"))
+
+@bp.route("/add_enrollment", methods=["POST"])
+def add_enrollment():
+    """Add a course to the student's enrollments.
+
+    Either:
+      - choose an existing course_id, OR
+      - create a new Course row from title/year/section, then enroll.
+    """
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    existing_course_id = request.form.get("course_id")
+    new_title = (request.form.get("new_course_title") or "").strip()
+    new_year = (request.form.get("new_course_year") or "").strip()
+    new_section = (request.form.get("new_course_section") or "").strip()
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    # Decide which course to use / create
+    if existing_course_id:
+        course_id = int(existing_course_id)
+
+    elif new_title:
+        # Require year + section when creating a new course
+        if not new_year or not new_section:
+            cursor.close()
+            close_db()
+            flash("Please provide year and section for the new course.", "danger")
+            return redirect(url_for("profile.view_profile"))
+
+        # See if a course with same title/year/section already exists
+        cursor.execute(
+            """
+            SELECT course_id
+            FROM Course
+            WHERE title = %s AND year = %s AND section = %s
+            """,
+            (new_title, new_year, new_section),
+        )
+        row = cursor.fetchone()
+
+        if row:
+            course_id = row["course_id"]
+        else:
+            # Create new course
+            cursor.execute(
+                """
+                INSERT INTO Course (title, year, section)
+                VALUES (%s, %s, %s)
+                """,
+                (new_title, new_year, new_section),
+            )
+            conn.commit()
+            cursor.execute("SELECT LAST_INSERT_ID() AS course_id")
+            course_id = cursor.fetchone()["course_id"]
+
+    else:
+        cursor.close()
+        close_db()
+        flash("Please select a course or enter a new one.", "danger")
+        return redirect(url_for("profile.view_profile"))
+
+    # Avoid duplicate enrollment
+    cursor.execute(
+        """
+        SELECT 1 FROM Enrollment
+        WHERE student_id = %s AND course_id = %s
+        """,
+        (g.user["student_id"], course_id),
+    )
+    if cursor.fetchone():
+        flash("You are already enrolled in that course.", "info")
+    else:
+        cursor.execute(
+            """
+            INSERT INTO Enrollment (student_id, course_id)
+            VALUES (%s, %s)
+            """,
+            (g.user["student_id"], course_id),
+        )
+        conn.commit()
+        flash("Course added to your enrollments!", "success")
+
+    cursor.close()
+    close_db()
+    return redirect(url_for("profile.view_profile"))
+
+
+
+@bp.route("/delete_enrollment", methods=["POST"])
+def delete_enrollment():
+    """Remove a course from the student's enrollments."""
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    course_id = request.form.get("course_id")
+    if not course_id:
+        flash("No course selected.", "danger")
+        return redirect(url_for("profile.view_profile"))
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM Enrollment
+        WHERE student_id = %s AND course_id = %s
+        """,
+        (g.user["student_id"], course_id),
+    )
+    conn.commit()
+    cursor.close()
+    close_db()
+
+    flash("Course removed from your enrollments.", "success")
+    return redirect(url_for("profile.view_profile"))
+
+@bp.route("/add_experience", methods=["POST"])
+def add_experience():
+    """Add an experience row for this student."""
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    job_title = (request.form.get("job_title") or "").strip()
+    organization = (request.form.get("organization") or "").strip()
+    start_date = request.form.get("start_date") or None  # yyyy-mm-dd
+    end_date = request.form.get("end_date") or None
+    description = (request.form.get("description") or "").strip()
+
+    if not job_title or not organization:
+        flash("Please provide at least a job title and organization.", "danger")
+        return redirect(url_for("profile.view_profile"))
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        INSERT INTO Experience (student_id, job_title, organization, start_date, end_date, description)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (g.user["student_id"], job_title, organization, start_date, end_date, description),
+    )
+    conn.commit()
+    cursor.close()
+    close_db()
+
+    flash("Experience added!", "success")
+    return redirect(url_for("profile.view_profile"))
+
+
+@bp.route("/delete_experience", methods=["POST"])
+def delete_experience():
+    """Delete one experience row for this student."""
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    experience_id = request.form.get("experience_id")
+    if not experience_id:
+        flash("No experience selected.", "danger")
+        return redirect(url_for("profile.view_profile"))
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM Experience
+        WHERE experience_id = %s AND student_id = %s
+        """,
+        (experience_id, g.user["student_id"]),
+    )
+    conn.commit()
+    cursor.close()
+    close_db()
+
+    flash("Experience removed.", "success")
+    return redirect(url_for("profile.view_profile"))
+
