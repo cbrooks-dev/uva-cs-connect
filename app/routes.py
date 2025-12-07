@@ -69,7 +69,6 @@ def users():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-    # Base query (with skill join for GROUP_CONCAT)
     query = """
         SELECT
             s.student_id,
@@ -87,7 +86,6 @@ def users():
 
     params = []
 
-    # Skill filter — filter by student_id, not by joined skill rows
     if selected_skill:
         query += """
             AND s.student_id IN (
@@ -98,7 +96,6 @@ def users():
         """
         params.append(selected_skill)
 
-    # Search filter
     if search:
         query += """ AND (
             s.first_name LIKE %s OR
@@ -108,7 +105,7 @@ def users():
         search_term = f"%{search}%"
         params.extend([search_term, search_term, search_term])
 
-    # Group by student (include profile_pic)
+
     query += """
         GROUP BY
             s.student_id,
@@ -119,7 +116,6 @@ def users():
             s.profile_pic
     """
 
-    # Sorting
     if sort == "year":
         query += " ORDER BY s.grad_year ASC, s.last_name ASC, s.first_name ASC"
     else:
@@ -128,7 +124,7 @@ def users():
     cursor.execute(query, params)
     users = cursor.fetchall()
 
-    # Fetch all skills for dropdown
+
     cursor.execute("SELECT skill_id, name FROM Skill ORDER BY name")
     all_skills = cursor.fetchall()
 
