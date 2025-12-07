@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from .db import execute, get_db, close_db
-from app.sort import sort_users
+from app.sort import sort_users, sort_events
 
 bp = Blueprint("main", __name__)
 
@@ -24,34 +24,23 @@ def about():
 
 @bp.route("/events")
 def events():
-    search = request.args.get("q", "").strip()
+    sort_key = request.args.get("sort", "")
+    order_clause = sort_events(sort_key)
+
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-    if search:
-        cursor.execute(
-            """
-            SELECT event_id, title, description, type, start_datetime, end_datetime, location
-            FROM `Event`
-            WHERE title LIKE %s OR description LIKE %s OR type LIKE %s OR location LIKE %s
-            ORDER BY start_datetime ASC
-        """,
-            (f"%{search}%", f"%{search}%", f"%{search}%", f"%{search}%"),
-        )
-    else:
-        cursor.execute(
-            """
-            SELECT event_id, title, description, type, start_datetime, end_datetime, location
-            FROM `Event`
-            ORDER BY start_datetime ASC
-        """
-        )
-
+    query = f"""
+        SELECT event_id, title, description, type, start_datetime, end_datetime, location
+        FROM `Event`
+        {order_clause}
+    """
+    cursor.execute(query)
     events = cursor.fetchall()
-    cursor.close()
-    close_db()
-    return render_template("events.html", events=events)
 
+    cursor.close()
+    conn.close()
+    return render_template("events.html", events=events)
 
 @bp.route("/users")
 def users():
