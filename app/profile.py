@@ -15,7 +15,7 @@ def allowed_file(filename):
 
 @bp.route("/")
 def view_profile():
-    """Show profile page with current user info + their skills, courses, experience."""
+    """Show profile page with current user info + their skills, courses, experience, availability."""
     if not g.user:
         return redirect(url_for("auth.login"))
 
@@ -74,8 +74,35 @@ def view_profile():
     )
     experiences = cursor.fetchall()
 
+    # ---------- AVAILABILITY for this student ----------
+    cursor.execute(
+        """
+        SELECT
+            slot_id,
+            day_of_week,
+            TIME_FORMAT(start_time, '%H:%i') AS start_time,
+            TIME_FORMAT(end_time,   '%H:%i') AS end_time
+        FROM AvailabilitySlot
+        WHERE student_id = %s
+        ORDER BY day_of_week, start_time
+        """,
+        (g.user["student_id"],),
+    )
+    availability_slots = cursor.fetchall()
+
     cursor.close()
     close_db()
+
+    # 30-minute time choices (tweak hours if you want)
+    time_choices = []
+    for hour in range(8, 22):      # 08:00–21:30
+        for minute in (0, 30):
+            time_choices.append(f"{hour:02d}:{minute:02d}")
+
+    days_of_week = [
+        "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday", "Sunday"
+    ]
 
     return render_template(
         "profile.html",
@@ -85,7 +112,11 @@ def view_profile():
         enrollments=enrollments,
         all_courses=all_courses,
         experiences=experiences,
+        availability_slots=availability_slots,
+        time_choices=time_choices,
+        days_of_week=days_of_week,
     )
+
 
 
 @bp.route("/update", methods=["POST"])
@@ -493,4 +524,72 @@ def delete_experience():
 
     flash("Experience removed.", "success")
     return redirect(url_for("profile.view_profile"))
+
+
+@bp.route("/availability/add", methods=["POST"])
+def add_availability():
+    """Add a weekly availability slot for the current user."""
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    day = request.form.get("day_of_week")
+    start = request.form.get("start_time")
+    end = request.form.get("end_time")
+
+    if not day or not start or not end:
+        flash("Please pick a day and a start/end time.", "danger")
+        return redirect(url_for("profile.view_profile"))
+
+    # simple validation: end must be after start
+    if end <= start:
+        flash("End time must be after start time.", "danger")
+        return redirect(url_for("profile.view_profile"))
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        INSERT INTO AvailabilitySlot (student_id, day_of_week, start_time, end_time)
+        VALUES (%s, %s, %s, %s)
+        """,
+        (g.user["student_id"], day, start, end),
+    )
+    conn.commit()
+    cursor.close()
+    close_db()
+
+    flash("Availability slot added.", "success")
+    return redirect(url_for("profile.view_profile"))
+
+
+@bp.route("/availability/delete", methods=["POST"])
+def delete_availability():
+    """Remove one availability slot for the current user."""
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    slot_id = request.form.get("slot_id")
+    if not slot_id:
+        flash("No slot selected.", "danger")
+        return redirect(url_for("profile.view_profile"))
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM AvailabilitySlot
+        WHERE slot_id = %s AND student_id = %s
+        """,
+        (slot_id, g.user["student_id"]),
+    )
+    conn.commit()
+    cursor.close()
+    close_db()
+
+    flash("Availability slot removed.", "success")
+    return redirect(url_for("profile.view_profile"))
+
+
 

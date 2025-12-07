@@ -221,6 +221,84 @@
         </div>
       </form>
       <!-- ==================================================== -->
+            <!-- ================== AVAILABILITY SECTION ================== -->
+      <hr class="my-4">
+
+      <h4 class="fw-semibold mb-3">Weekly Availability</h4>
+
+      {% if availability_slots %}
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>From</th>
+              <th>To</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for slot in availability_slots %}
+            <tr>
+              <td>{{ slot.day_of_week }}</td>
+              <td>{{ slot.start_time }}</td>
+              <td>{{ slot.end_time }}</td>
+              <td class="text-end">
+                <form action="{{ url_for('profile.delete_availability') }}" method="POST" class="d-inline">
+                  <input type="hidden" name="slot_id" value="{{ slot.slot_id }}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    Remove
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted">You haven't added any availability yet.</p>
+      {% endif %}
+
+      <!-- Add availability slot -->
+      <form action="{{ url_for('profile.add_availability') }}" method="POST" class="row g-2 mb-4">
+        <div class="col-md-4">
+          <label class="form-label">Day of week</label>
+          <select name="day_of_week" class="form-select" required>
+            <option value="">-- Select day --</option>
+            {% for day in days_of_week %}
+              <option value="{{ day }}">{{ day }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Start time</label>
+          <select name="start_time" class="form-select" required>
+            <option value="">-- Start --</option>
+            {% for t in time_choices %}
+              <option value="{{ t }}">{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">End time</label>
+          <select name="end_time" class="form-select" required>
+            <option value="">-- End --</option>
+            {% for t in time_choices %}
+              <option value="{{ t }}">{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-12">
+          <button class="btn btn-primary w-100 mt-2" type="submit">
+            Add Availability
+          </button>
+        </div>
+      </form>
+      <!-- ==================================================== -->
+
+      
 
     </div>
   </div>

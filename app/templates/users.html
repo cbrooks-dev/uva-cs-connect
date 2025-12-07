@@ -145,6 +145,30 @@
                           </ul>
                         {% endif %}
 
+                        {% if user.availability %}
+                            <div class="mt-2">
+                                <strong>Availability:</strong>
+                                <ul class="list-unstyled mt-1 mb-0">
+                                {% for slot in user.availability %}
+                                    <li class="small">
+                                    {{ slot.day_of_week }}
+                                    {{ slot.start_time }} – {{ slot.end_time }}
+
+                                    {% if logged_in %}
+                                        {% if slot.overlaps %}
+                                        <span class="text-success ms-1">✔</span>
+                                        {% else %}
+                                        <span class="text-danger ms-1">✖</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    </li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+
+                        
+
                         {% if not user.experiences and not user.courses %}
                           <p class="text-muted small mb-0">No additional details yet.</p>
                         {% endif %}

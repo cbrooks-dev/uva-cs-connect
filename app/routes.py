@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, g
 from .db import execute, get_db, close_db
 from app.sort import sort_users, sort_events
 from datetime import datetime
@@ -123,16 +123,53 @@ def users():
     cursor.execute(query, params)
     users = cursor.fetchall()
 
-    # ---------- Pull experiences and courses for all these users ----------
+    # ---------- Pull experiences, courses, and availability for all these users ----------
     student_ids = [u["student_id"] for u in users]
 
     experiences_by_student = {}
     courses_by_student = {}
+    availability_by_student = {}
+
+    # helper: convert time to minutes since midnight
+    def to_minutes(t):
+        # strings like "13:30:00"
+        from datetime import datetime, time, timedelta
+        if isinstance(t, str):
+            h, m, *_ = t.split(":")
+            return int(h) * 60 + int(m)
+        if hasattr(t, "hour"):
+            return t.hour * 60 + t.minute
+        if hasattr(t, "seconds"):
+            s = t.seconds
+            return (s // 3600) * 60 + (s // 60) % 60
+        return 0
+
+    def slots_overlap(slot, my_slot):
+        if slot["day_of_week"] != my_slot["day_of_week"]:
+            return False
+        s1 = to_minutes(slot["start_time"])
+        e1 = to_minutes(slot["end_time"])
+        s2 = to_minutes(my_slot["start_time"])
+        e2 = to_minutes(my_slot["end_time"])
+        return s1 < e2 and s2 < e1  # standard interval overlap
+
+    # current user's slots (for overlap computation)
+    my_slots = []
+    if getattr(g, "user", None):
+        cursor.execute(
+            """
+            SELECT day_of_week, start_time, end_time
+            FROM AvailabilitySlot
+            WHERE student_id = %s
+            """,
+            (g.user["student_id"],),
+        )
+        my_slots = cursor.fetchall()
 
     if student_ids:
         placeholders = ",".join(["%s"] * len(student_ids))
 
-       
+        # Experiences
         cursor.execute(
             f"""
             SELECT
@@ -152,7 +189,7 @@ def users():
         for row in cursor.fetchall():
             experiences_by_student.setdefault(row["student_id"], []).append(row)
 
-        
+        # Courses
         cursor.execute(
             f"""
             SELECT
@@ -171,13 +208,36 @@ def users():
         for row in cursor.fetchall():
             courses_by_student.setdefault(row["student_id"], []).append(row)
 
+        # Availability slots for all displayed users
+        cursor.execute(
+            f"""
+            SELECT
+                slot_id,
+                student_id,
+                day_of_week,
+                start_time,
+                end_time
+            FROM AvailabilitySlot
+            WHERE student_id IN ({placeholders})
+            ORDER BY FIELD(day_of_week,'Mon','Tue','Wed','Thu','Fri','Sat','Sun'),
+                     start_time
+            """,
+            student_ids,
+        )
+        for row in cursor.fetchall():
+            # compute overlap with current user (if any)
+            overlaps = any(slots_overlap(row, ms) for ms in my_slots) if my_slots else False
+            row["overlaps"] = overlaps
+            availability_by_student.setdefault(row["student_id"], []).append(row)
 
+    # Attach experiences, courses, availability to each user dict
     for u in users:
         sid = u["student_id"]
         u["experiences"] = experiences_by_student.get(sid, [])
         u["courses"] = courses_by_student.get(sid, [])
+        u["availability"] = availability_by_student.get(sid, [])
 
-
+    # Skills for dropdown
     cursor.execute("SELECT skill_id, name FROM Skill ORDER BY name")
     all_skills = cursor.fetchall()
 
@@ -191,8 +251,8 @@ def users():
         selected_skill=selected_skill if selected_skill else "",
         search=search,
         sort=sort,
+        logged_in=bool(getattr(g, "user", None)),
     )
-
 
 
 
