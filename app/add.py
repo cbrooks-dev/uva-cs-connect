@@ -485,18 +485,60 @@ def create_event():
         location = request.form["location"]
 
         conn = get_db()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
+
+        # 1️⃣ Insert the event
         cursor.execute("""
             INSERT INTO Event (title, description, start_datetime, end_datetime, location, created_by)
             VALUES (%s, %s, %s, %s, %s, %s)
         """, (title, description, start_datetime, end_datetime, location, g.user["student_id"]))
         conn.commit()
+
+        # Get the ID of the newly created event
+        event_id = cursor.lastrowid
+
+        # 2️⃣ Add to Organizes table
+        cursor.execute("""
+            INSERT INTO Organizes (student_id, event_id)
+            VALUES (%s, %s)
+        """, (g.user["student_id"], event_id))
+        conn.commit()
+
         cursor.close()
         conn.close()
 
         return redirect(url_for("main.events"))
 
     return render_template("create_event.html")
+
+@bp.route("/delete_event/<int:event_id>", methods=["POST"])
+def delete_event(event_id):
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Check if the current user is the organizer
+    cursor.execute("SELECT created_by FROM Event WHERE event_id = %s", (event_id,))
+    event = cursor.fetchone()
+    if not event or event[0] != g.user["student_id"]:
+        cursor.close()
+        conn.close()
+        return "You are not allowed to delete this event.", 403
+
+    # Delete from Attends first (foreign key constraint)
+    cursor.execute("DELETE FROM Attends WHERE event_id = %s", (event_id,))
+    # Delete from Organizes table if you have it
+    cursor.execute("DELETE FROM Organizes WHERE event_id = %s", (event_id,))
+    # Delete the event itself
+    cursor.execute("DELETE FROM Event WHERE event_id = %s", (event_id,))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return redirect(url_for("main.events"))
 
 @bp.route('/attend_event/<int:event_id>', methods=['POST'])
 def attend_event(event_id):
