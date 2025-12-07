@@ -69,6 +69,7 @@ def users():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
+    # Base query: students + skills + profile_pic
     query = """
         SELECT
             s.student_id,
@@ -83,9 +84,9 @@ def users():
         LEFT JOIN Skill sk ON ss.skill_id = sk.skill_id
         WHERE 1=1
     """
-
     params = []
 
+    # Skill filter — filter by student_id, not by joined skill rows
     if selected_skill:
         query += """
             AND s.student_id IN (
@@ -96,6 +97,7 @@ def users():
         """
         params.append(selected_skill)
 
+    # Search filter
     if search:
         query += """ AND (
             s.first_name LIKE %s OR
@@ -105,17 +107,14 @@ def users():
         search_term = f"%{search}%"
         params.extend([search_term, search_term, search_term])
 
-
+    # Group by student
     query += """
         GROUP BY
-            s.student_id,
-            s.first_name,
-            s.last_name,
-            s.email,
-            s.grad_year,
-            s.profile_pic
+            s.student_id, s.first_name, s.last_name, s.email,
+            s.grad_year, s.profile_pic
     """
 
+    # Sorting
     if sort == "year":
         query += " ORDER BY s.grad_year ASC, s.last_name ASC, s.first_name ASC"
     else:
@@ -123,6 +122,60 @@ def users():
 
     cursor.execute(query, params)
     users = cursor.fetchall()
+
+    # ---------- Pull experiences and courses for all these users ----------
+    student_ids = [u["student_id"] for u in users]
+
+    experiences_by_student = {}
+    courses_by_student = {}
+
+    if student_ids:
+        placeholders = ",".join(["%s"] * len(student_ids))
+
+       
+        cursor.execute(
+            f"""
+            SELECT
+                experience_id,
+                student_id,
+                job_title,
+                organization,
+                start_date,
+                end_date,
+                description
+            FROM Experience
+            WHERE student_id IN ({placeholders})
+            ORDER BY start_date DESC
+            """,
+            student_ids,
+        )
+        for row in cursor.fetchall():
+            experiences_by_student.setdefault(row["student_id"], []).append(row)
+
+        
+        cursor.execute(
+            f"""
+            SELECT
+                e.student_id,
+                c.course_id,
+                c.title,
+                c.year,
+                c.section
+            FROM Enrollment e
+            JOIN Course c ON e.course_id = c.course_id
+            WHERE e.student_id IN ({placeholders})
+            ORDER BY c.year DESC, c.title
+            """,
+            student_ids,
+        )
+        for row in cursor.fetchall():
+            courses_by_student.setdefault(row["student_id"], []).append(row)
+
+
+    for u in users:
+        sid = u["student_id"]
+        u["experiences"] = experiences_by_student.get(sid, [])
+        u["courses"] = courses_by_student.get(sid, [])
 
 
     cursor.execute("SELECT skill_id, name FROM Skill ORDER BY name")
@@ -139,6 +192,7 @@ def users():
         search=search,
         sort=sort,
     )
+
 
 
 
