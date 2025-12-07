@@ -1,11 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="text-center mb-5">
+<section class="text-center mb-4">
     <h1 class="display-5 fw-bold text-dark">Upcoming Events</h1>
     <p class="lead text-muted">Stay connected with the UVA CS community through our latest meetups, workshops, and hackathons.</p>
     <hr class="my-4" />
 </section>
+
+<div class="container mb-4 d-flex justify-content-end">
+    <!-- Sort Dropdown -->
+    <div class="dropdown">
+        <button class="btn btn-dark dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            Sort By
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+            <li><a class="dropdown-item" href="{{ url_for('main.events', sort='start_asc') }}">Start Date (Earliest)</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.events', sort='start_desc') }}">Start Date (Latest)</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.events', sort='alpha_asc') }}">Alphabetical A-Z</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('main.events', sort='alpha_desc') }}">Alphabetical Z-A</a></li>
+        </ul>
+    </div>
+</div>
 
 <div class="container">
     <div class="row justify-content-center">
@@ -14,10 +29,24 @@
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body text-center">
                     <h5 class="card-title fw-bold" style="color: #002f6c;">{{ event.title }}</h5>
-                    <p class="card-text text-muted">{{ event.description }}</p>
-                    <p class="text-secondary mb-1"><strong>Date:</strong> {{ event.date }}</p>
+
+                    <!-- Date and Time -->
+                    <p class="text-secondary mb-1">
+                        {{ event.start_datetime_date }}, {{ event.start_datetime_time }} - {{ event.end_datetime_time }}
+                    </p>
+
+                    <!-- Location -->
                     <p class="text-secondary mb-1"><strong>Location:</strong> {{ event.location }}</p>
-                    <a href="{{ event.link }}" class="btn btn-dark mt-3">Learn More</a>
+
+                    <!-- Collapsible Description -->
+                    <div class="collapse mt-2" id="desc-{{ event.event_id }}">
+                        <p class="card-text text-muted">{{ event.description }}</p>
+                    </div>
+
+                    <!-- Learn More button toggles collapse -->
+                    <button class="btn btn-dark mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#desc-{{ event.event_id }}" aria-expanded="false" aria-controls="desc-{{ event.event_id }}">
+                        Learn More
+                    </button>
                 </div>
             </div>
         </div>
@@ -25,3 +54,5 @@
     </div>
 </div>
 {% endblock %}
+
+

@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from .db import execute, get_db, close_db
+from app.sort import sort_users, sort_events
+from datetime import datetime
 
 bp = Blueprint("main", __name__)
 
@@ -23,65 +25,68 @@ def about():
 
 @bp.route("/events")
 def events():
+    sort_key = request.args.get("sort", "")
     search = request.args.get("q", "").strip()
+    order_clause = sort_events(sort_key)
+
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-    if search:
-        cursor.execute(
-            """
-            SELECT event_id, title, description, type, start_datetime, end_datetime, location
-            FROM `Event`
-            WHERE title LIKE %s OR description LIKE %s OR type LIKE %s OR location LIKE %s
-            ORDER BY start_datetime ASC
-        """,
-            (f"%{search}%", f"%{search}%", f"%{search}%", f"%{search}%"),
-        )
-    else:
-        cursor.execute(
-            """
-            SELECT event_id, title, description, type, start_datetime, end_datetime, location
-            FROM `Event`
-            ORDER BY start_datetime ASC
-        """
-        )
+    query = "SELECT event_id, title, description, type, start_datetime, end_datetime, location FROM `Event`"
+    params = ()
 
+    if search:
+        query += " WHERE title LIKE %s OR description LIKE %s OR type LIKE %s OR location LIKE %s"
+        params = (f"%{search}%", f"%{search}%", f"%{search}%", f"%{search}%")
+
+    query += f" {order_clause}"
+
+    cursor.execute(query, params)
     events = cursor.fetchall()
     cursor.close()
-    close_db()
-    return render_template("events.html", events=events)
+    conn.close()
+
+    # Separate date and time for template
+    for event in events:
+        for key in ["start_datetime", "end_datetime"]:
+            if event.get(key):
+                dt = event[key]
+                if isinstance(dt, str):
+                    dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+                event[f"{key}_date"] = dt.strftime("%m/%d/%Y")       # Date
+                event[f"{key}_time"] = dt.strftime("%I:%M %p").lstrip("0")  # 12-hour time without leading zero
+
+    return render_template("events.html", events=events, search=search, sort=sort_key)
+
 
 
 @bp.route("/users")
 def users():
+    sort = request.args.get("sort", "alpha")
     search = request.args.get("q", "").strip()
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-    if search:
-        cursor.execute(
-            """
-            SELECT student_id, first_name, last_name, email, grad_year
-            FROM Student
-            WHERE first_name LIKE %s OR last_name LIKE %s OR email LIKE %s
-            ORDER BY last_name ASC, first_name ASC
-        """,
-            (f"%{search}%", f"%{search}%", f"%{search}%"),
-        )
-    else:
-        cursor.execute(
-            """
-            SELECT student_id, first_name, last_name, email, grad_year
-            FROM Student
-            ORDER BY last_name ASC, first_name ASC
-        """
-        )
+    # Base query
+    query = "SELECT student_id, first_name, last_name, email, grad_year FROM Student"
+    params = ()
 
+    # Search filter
+    if search:
+        query += " WHERE first_name LIKE %s OR last_name LIKE %s OR email LIKE %s"
+        params = (f"%{search}%", f"%{search}%", f"%{search}%")
+
+    # Sorting
+    if sort == "year":
+        query += " ORDER BY grad_year ASC, last_name ASC, first_name ASC"
+    else:
+        query += " ORDER BY last_name ASC, first_name ASC"
+
+    cursor.execute(query, params)
     users = cursor.fetchall()
     cursor.close()
     close_db()
-    return render_template("users.html", users=users)
-
+    return render_template("users.html", users=users, search=search, sort=sort)
 
 @bp.route("/demo")
 def demo():
