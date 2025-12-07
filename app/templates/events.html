@@ -15,9 +15,20 @@
                 <div class="card-body text-center">
                     <h5 class="card-title fw-bold" style="color: #002f6c;">{{ event.title }}</h5>
                     <p class="card-text text-muted">{{ event.description }}</p>
-                    <p class="text-secondary mb-1"><strong>Date:</strong> {{ event.date }}</p>
-                    <p class="text-secondary mb-1"><strong>Location:</strong> {{ event.location }}</p>
-                    <a href="{{ event.link }}" class="btn btn-dark mt-3">Learn More</a>
+
+                    <p class="text-secondary mb-1">
+                        <strong>Start:</strong>
+                        {{ event.start_datetime.strftime('%B %d, %Y %I:%M %p') }}
+                    </p>
+                    <p class="text-secondary mb-1">
+                        <strong>End:</strong>
+                        {{ event.end_datetime.strftime('%B %d, %Y %I:%M %p') }}
+                    </p>
+
+                    <p class="text-secondary mb-1">
+                        <strong>Location:</strong> {{ event.location }}
+                    </p>
+                    <a href="{{ event.link or '#' }}" class="btn btn-dark mt-3">Learn More</a>
                 </div>
             </div>
         </div>
