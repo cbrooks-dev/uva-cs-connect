@@ -32,11 +32,17 @@ def events():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-    query = "SELECT event_id, title, description, type, start_datetime, end_datetime, location FROM `Event`"
+    # Get events with organizer_id
+    query = """
+        SELECT 
+            e.event_id, e.title, e.description, e.type, e.start_datetime, e.end_datetime,
+            e.location, e.created_by AS organizer_id
+        FROM Event e
+    """
     params = ()
 
     if search:
-        query += " WHERE title LIKE %s OR description LIKE %s OR type LIKE %s OR location LIKE %s"
+        query += " WHERE e.title LIKE %s OR e.description LIKE %s OR e.type LIKE %s OR e.location LIKE %s"
         params = (f"%{search}%", f"%{search}%", f"%{search}%", f"%{search}%")
 
     query += f" {order_clause}"
@@ -44,32 +50,30 @@ def events():
     cursor.execute(query, params)
     events = cursor.fetchall()
 
-    # Fetch attendees for each event
+    # Fetch attendees for all events
     for event in events:
-        cursor.execute(
-            """
-            SELECT s.first_name, s.last_name
-            FROM Attends a
-            JOIN Student s ON a.student_id = s.student_id
-            WHERE a.event_id = %s
-            """,
-            (event['event_id'],)
-        )
-        event['attendees'] = cursor.fetchall()
-
-        # Separate date and time for template
+        # Parse datetime
         for key in ["start_datetime", "end_datetime"]:
             if event.get(key):
                 dt = event[key]
                 if isinstance(dt, str):
                     dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
                 event[f"{key}_date"] = dt.strftime("%m/%d/%Y")       # Date
-                event[f"{key}_time"] = dt.strftime("%I:%M %p").lstrip("0")  # 12-hour time without leading zero
+                event[f"{key}_time"] = dt.strftime("%I:%M %p").lstrip("0")  # 12-hour time
+
+        # Get attendees
+        cursor.execute("""
+            SELECT s.first_name, s.last_name 
+            FROM Student s
+            JOIN Attends a ON s.student_id = a.student_id
+            WHERE a.event_id = %s
+        """, (event["event_id"],))
+        event["attendees"] = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    return render_template("events.html", events=events, search=search, sort=sort_key, g=g)
+    return render_template("events.html", events=events, search=search, sort=sort_key)
 
 
 @bp.route("/users")

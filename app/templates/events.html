@@ -57,18 +57,25 @@
                         </div>
                     </div>
 
-                    <!-- Learn More button toggles collapse -->
-                    <button class="btn btn-dark mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#desc-{{ event.event_id }}" aria-expanded="false" aria-controls="desc-{{ event.event_id }}">
-                        Learn More
-                    </button>
-
-                    <!-- Attend Button -->
-                    <form action="{{ url_for('add.attend_event', event_id=event.event_id) }}" method="POST">
-                        <button type="submit" class="btn btn-primary mt-2"
-                            {% if not g.user %} disabled {% endif %}>
-                            Attend
+                    <!-- Learn More + Attend buttons side by side -->
+                    <div class="d-flex justify-content-center mt-3 gap-2">
+                        <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#desc-{{ event.event_id }}" aria-expanded="false" aria-controls="desc-{{ event.event_id }}">
+                            Learn More
                         </button>
-                    </form>
+
+                        <form action="{{ url_for('add.attend_event', event_id=event.event_id) }}" method="POST" class="m-0">
+                            <button type="submit" class="btn btn-primary"
+                                {% if not g.user %} disabled {% endif %}>
+                                Attend
+                            </button>
+                        </form>
+
+                        {% if g.user and event.organizer_id == g.user.student_id %}
+                        <form action="{{ url_for('add.delete_event', event_id=event.event_id) }}" method="POST" class="m-0">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                        {% endif %}
+                    </div>
 
                 </div>
             </div>
@@ -77,3 +84,4 @@
     </div>
 </div>
 {% endblock %}
+
