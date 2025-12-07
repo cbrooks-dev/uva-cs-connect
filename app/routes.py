@@ -251,7 +251,7 @@ def users():
         selected_skill=selected_skill if selected_skill else "",
         search=search,
         sort=sort,
-        logged_in=bool(getattr(g, "user", None)),
+        logged_in=bool(getattr(g, "user", None)), 
     )
 
 
