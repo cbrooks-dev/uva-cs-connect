@@ -25,22 +25,30 @@ def about():
 @bp.route("/events")
 def events():
     sort_key = request.args.get("sort", "")
+    search = request.args.get("q", "").strip()
     order_clause = sort_events(sort_key)
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
 
-    query = f"""
-        SELECT event_id, title, description, type, start_datetime, end_datetime, location
-        FROM `Event`
-        {order_clause}
-    """
-    cursor.execute(query)
-    events = cursor.fetchall()
+    # Base query
+    query = "SELECT event_id, title, description, type, start_datetime, end_datetime, location FROM `Event`"
+    params = ()
 
+    # Search filter
+    if search:
+        query += " WHERE title LIKE %s OR description LIKE %s OR type LIKE %s OR location LIKE %s"
+        params = (f"%{search}%", f"%{search}%", f"%{search}%", f"%{search}%")
+
+    # Add sorting
+    query += f" {order_clause}"
+
+    cursor.execute(query, params)
+    events = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template("events.html", events=events)
+    return render_template("events.html", events=events, search=search, sort=sort_key)
+
 
 @bp.route("/users")
 def users():
