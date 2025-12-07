@@ -30,8 +30,12 @@
                 <div class="card-body text-center">
                     <h5 class="card-title fw-bold" style="color: #002f6c;">{{ event.title }}</h5>
 
-                    <p class="text-secondary mb-1"><strong>Start:</strong> {{ event.start_datetime }}</p>
-                    <p class="text-secondary mb-1"><strong>End:</strong> {{ event.end_datetime }}</p>
+                    <!-- Date and Time -->
+                    <p class="text-secondary mb-1">
+                        {{ event.start_datetime_date }}, {{ event.start_datetime_time }} - {{ event.end_datetime_time }}
+                    </p>
+
+                    <!-- Location -->
                     <p class="text-secondary mb-1"><strong>Location:</strong> {{ event.location }}</p>
 
                     <!-- Collapsible Description -->
@@ -50,4 +54,5 @@
     </div>
 </div>
 {% endblock %}
+
 

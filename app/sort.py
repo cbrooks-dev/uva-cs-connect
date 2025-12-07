@@ -24,7 +24,8 @@ def sort_events(sort_key):
         return "ORDER BY start_datetime DESC"
     elif sort_key == "alpha_asc":
         return "ORDER BY title ASC"
+    elif sort_key == "alpha_desc":
+        return "ORDER BY title DESC"
     else:
         return "ORDER BY start_datetime ASC"  # default
-
 
