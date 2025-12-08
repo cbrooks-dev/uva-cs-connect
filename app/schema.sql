@@ -46,7 +46,8 @@ CREATE TABLE `Event` (
     type VARCHAR(50),
     start_datetime DATETIME NOT NULL,
     end_datetime   DATETIME NOT NULL,
-    location VARCHAR(100)
+    location VARCHAR(100),
+    created_by INT NOT NULL
 );
 
 CREATE TABLE Experience (
@@ -239,18 +240,18 @@ INSERT INTO Course (title, year, section) VALUES
 SET @course_id = LAST_INSERT_ID();
 
 -- Insert Events
-INSERT INTO `Event` (title, description, type, start_datetime, end_datetime, location) VALUES
-('HackUVA', 'Annual 24-hour hackathon for UVA students.', 'Tech', '2025-03-01 09:00:00', '2025-03-02 15:00:00', 'Rice Hall'),
-('Startup Mixer', 'Networking event for founders and investors.', 'Career', '2025-03-10 18:00:00', '2025-03-10 20:00:00', 'Contemplative Commons'),
-('Women in Tech Night', 'Celebration of women in computing at UVA.', 'Social', '2025-02-05 17:00:00', '2025-02-05 19:00:00', 'Newcomb Hall'),
-('AI Research Symposium', 'Talks and poster sessions by UVA faculty.', 'Academic', '2025-04-15 10:00:00', '2025-04-15 17:00:00', 'Thornton Hall'),
-('Hoos for Data', 'Workshop for data enthusiasts.', 'Workshop', '2025-02-20 14:00:00', '2025-02-20 16:00:00', 'Clark Library'),
-('Cville Innovators', 'Charlottesville startup showcase.', 'Career', '2025-03-25 17:30:00', '2025-03-25 19:30:00', 'Darden School'),
-('Hack4Humanity', 'Coding for social good.', 'Tech', '2025-04-10 09:00:00', '2025-04-11 15:00:00', 'Rice Hall'),
-('CIO Fair', 'Showcase of UVA CIOs and student clubs.', 'Social', '2025-02-12 11:00:00', '2025-02-12 14:00:00', 'Amphitheater'),
-('LinkedIn Headshots', 'Professional headshot session for students.', 'Career', '2025-02-28 13:00:00', '2025-02-28 16:00:00', 'Newcomb Ballroom'),
-('Capstone Demo Day', 'Students present final projects.', 'Academic', '2025-05-02 09:00:00', '2025-05-02 12:00:00', 'Olsson Hall'),
-('Career Fair', 'Meet employers on campus', 'Networking', '2025-04-10 10:00:00', '2025-04-10 14:00:00', 'Thornton Hall');
+INSERT INTO `Event` (title, description, type, start_datetime, end_datetime, location, created_by) VALUES
+('HackUVA', 'Annual 24-hour hackathon for UVA students.', 'Tech', '2025-03-01 09:00:00', '2025-03-02 15:00:00', 'Rice Hall', 1),
+('Startup Mixer', 'Networking event for founders and investors.', 'Career', '2025-03-10 18:00:00', '2025-03-10 20:00:00', 'Contemplative Commons', 2),
+('Women in Tech Night', 'Celebration of women in computing at UVA.', 'Social', '2025-02-05 17:00:00', '2025-02-05 19:00:00', 'Newcomb Hall', 3),
+('AI Research Symposium', 'Talks and poster sessions by UVA faculty.', 'Academic', '2025-04-15 10:00:00', '2025-04-15 17:00:00', 'Thornton Hall', 4),
+('Hoos for Data', 'Workshop for data enthusiasts.', 'Workshop', '2025-02-20 14:00:00', '2025-02-20 16:00:00', 'Clark Library', 5),
+('Cville Innovators', 'Charlottesville startup showcase.', 'Career', '2025-03-25 17:30:00', '2025-03-25 19:30:00', 'Darden School', 6),
+('Hack4Humanity', 'Coding for social good.', 'Tech', '2025-04-10 09:00:00', '2025-04-11 15:00:00', 'Rice Hall', 7),
+('CIO Fair', 'Showcase of UVA CIOs and student clubs.', 'Social', '2025-02-12 11:00:00', '2025-02-12 14:00:00', 'Amphitheater', 8),
+('LinkedIn Headshots', 'Professional headshot session for students.', 'Career', '2025-02-28 13:00:00', '2025-02-28 16:00:00', 'Newcomb Ballroom', 9),
+('Capstone Demo Day', 'Students present final projects.', 'Academic', '2025-05-02 09:00:00', '2025-05-02 12:00:00', 'Olsson Hall', 10),
+('Career Fair', 'Meet employers on campus', 'Networking', '2025-04-10 10:00:00', '2025-04-10 14:00:00', 'Thornton Hall', 11);
 
 SET @event_id = LAST_INSERT_ID();
 
