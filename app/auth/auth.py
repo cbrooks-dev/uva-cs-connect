@@ -105,14 +105,19 @@ def login():
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get("user_id")
-    g.user = None
-
-    if user_id is not None:
-        db = get_db()
-        cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM Student WHERE student_id = %s", (user_id,))
-        g.user = cursor.fetchone()
-        cursor.close()
+    g.user = None  # Initialize g.user as None
+    
+    if user_id:
+        try:
+            db = get_db()
+            cursor = db.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM Student WHERE student_id = %s", (user_id,))
+            g.user = cursor.fetchone()  # Set the user data in g.user
+            cursor.close()
+        except Exception as e:
+            # Log the error (optional) or handle it
+            print(f"Error loading user: {e}")
+            g.user = None  # If there's an error, ensure g.user remains None
 
 
 @bp.route("/logout")
