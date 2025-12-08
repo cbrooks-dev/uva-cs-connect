@@ -275,4 +275,3 @@ def users():
 @bp.route("/demo")
 def demo():
     return render_template("demo.html")
-

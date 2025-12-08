@@ -39,6 +39,22 @@ def view_profile():
     cursor.execute("SELECT skill_id, name FROM Skill ORDER BY name")
     all_skills = cursor.fetchall()
 
+    # ---------- INTERESTS ----------
+    cursor.execute(
+        """
+        SELECT i.interest_id, i.name
+        FROM Interest i
+        JOIN StudentInterest si ON i.interest_id = si.interest_id
+        WHERE si.student_id = %s
+        ORDER BY i.name
+        """,
+        (g.user["student_id"],),
+    )
+    interests = cursor.fetchall()
+
+    cursor.execute("SELECT interest_id, name FROM Interest ORDER BY name")
+    all_interests = cursor.fetchall()
+
     # ---------- ENROLLMENTS for this student ----------
     cursor.execute(
         """
@@ -109,6 +125,8 @@ def view_profile():
         user=g.user,
         skills=skills,
         all_skills=all_skills,
+        interests=interests,
+        all_interests=all_interests,
         enrollments=enrollments,
         all_courses=all_courses,
         experiences=experiences,
@@ -591,5 +609,85 @@ def delete_availability():
     flash("Availability slot removed.", "success")
     return redirect(url_for("profile.view_profile"))
 
+@bp.route("/add_interest", methods=["POST"])
+def add_interest():
+    """Add an interest to the current user's profile."""
+    if not g.user:
+        return redirect(url_for("auth.login"))
 
+    existing_interest_id = request.form.get("interest_id")
+    interest_name = (request.form.get("interest_name") or "").strip()
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    if existing_interest_id:
+        interest_id = int(existing_interest_id)
+    elif interest_name:
+        cursor.execute("SELECT interest_id FROM Interest WHERE name = %s", (interest_name,))
+        row = cursor.fetchone()
+        if row:
+            interest_id = row["interest_id"]
+        else:
+            cursor.execute("INSERT INTO Interest (name) VALUES (%s)", (interest_name,))
+            conn.commit()
+            cursor.execute("SELECT LAST_INSERT_ID() AS interest_id")
+            interest_id = cursor.fetchone()["interest_id"]
+    else:
+        cursor.close()
+        close_db()
+        flash("Please choose an interest or type a new one.", "danger")
+        return redirect(url_for("profile.view_profile"))
+
+    cursor.execute(
+        """
+        SELECT 1 FROM StudentInterest
+        WHERE student_id = %s AND interest_id = %s
+        """,
+        (g.user["student_id"], interest_id),
+    )
+    if cursor.fetchone():
+        flash("You already have that interest.", "info")
+    else:
+        cursor.execute(
+            """
+            INSERT INTO StudentInterest (student_id, interest_id)
+            VALUES (%s, %s)
+            """,
+            (g.user["student_id"], interest_id),
+        )
+        conn.commit()
+        flash("Interest added to your profile!", "success")
+
+    cursor.close()
+    close_db()
+    return redirect(url_for("profile.view_profile"))
+
+@bp.route("/delete_interest", methods=["POST"])
+def delete_interest():
+    """Remove an interest from the current user's profile."""
+    if not g.user:
+        return redirect(url_for("auth.login"))
+
+    interest_id = request.form.get("interest_id")
+    if not interest_id:
+        flash("No interest selected.", "danger")
+        return redirect(url_for("profile.view_profile"))
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM StudentInterest
+        WHERE student_id = %s AND interest_id = %s
+        """,
+        (g.user["student_id"], interest_id),
+    )
+    conn.commit()
+    cursor.close()
+    close_db()
+
+    flash("Interest removed from your profile.", "success")
+    return redirect(url_for("profile.view_profile"))
 
