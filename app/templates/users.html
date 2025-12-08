@@ -15,28 +15,27 @@
 
         <form method="GET" action="{{ url_for('main.users') }}" class="d-flex align-items-center gap-2">
             {% if sort %}
-              <input type="hidden" name="sort" value="{{ sort }}">
+            <input type="hidden" name="sort" value="{{ sort }}">
             {% endif %}
             {% if search %}
-              <input type="hidden" name="q" value="{{ search }}">
+            <input type="hidden" name="q" value="{{ search }}">
             {% endif %}
 
             <label for="skillFilter" class="mb-0 fw-semibold">Filter by skill:</label>
             <select name="skill" id="skillFilter" class="form-select" style="min-width: 200px;">
                 <option value="">All skills</option>
                 {% for skill in all_skills %}
-                  <option value="{{ skill.skill_id }}"
-                          {% if selected_skill and selected_skill|int == skill.skill_id %}selected{% endif %}>
+                <option value="{{ skill.skill_id }}"
+                        {% if selected_skill and selected_skill|int == skill.skill_id %}selected{% endif %}>
                     {{ skill.name }}
-                  </option>
+                </option>
                 {% endfor %}
             </select>
             <button type="submit" class="btn btn-dark">
-              Apply
+                Apply
             </button>
         </form>
 
-   
         <div class="dropdown">
             <button class="btn btn-dark dropdown-toggle" type="button" id="sortDropdown"
                     data-bs-toggle="dropdown" aria-expanded="false">
@@ -44,16 +43,16 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="sortDropdown">
                 <li>
-                  <a class="dropdown-item"
-                     href="{{ url_for('main.users', sort='alpha', skill=selected_skill, q=search) }}">
-                    Alphabetically (A–Z)
-                  </a>
+                    <a class="dropdown-item"
+                       href="{{ url_for('main.users', sort='alpha', skill=selected_skill, q=search) }}">
+                        Alphabetically (A–Z)
+                    </a>
                 </li>
                 <li>
-                  <a class="dropdown-item"
-                     href="{{ url_for('main.users', sort='year', skill=selected_skill, q=search) }}">
-                    Graduation Year
-                  </a>
+                    <a class="dropdown-item"
+                       href="{{ url_for('main.users', sort='year', skill=selected_skill, q=search) }}">
+                        Graduation Year
+                    </a>
                 </li>
             </ul>
         </div>
@@ -69,10 +68,10 @@
                 <!-- PROFILE PICTURE -->
                 <div class="p-3">
                     <img
-                        src="{% if user.profile_pic %}{{ url_for('static', filename='uploads/profile_pics/' ~ user.profile_pic) }}{% else %}{{ url_for('static', filename='uploads/profile_pics/default_avatar.png') }}{% endif %}"
-                        class="rounded-circle img-fluid"
-                        style="width: 140px; height: 140px; object-fit: cover;"
-                        alt="Profile picture of {{ user.first_name }} {{ user.last_name }}"
+                            src="{% if user.profile_pic %}{{ url_for('static', filename='uploads/profile_pics/' ~ user.profile_pic) }}{% else %}{{ url_for('static', filename='uploads/profile_pics/default_avatar.png') }}{% endif %}"
+                            class="rounded-circle img-fluid"
+                            style="width: 140px; height: 140px; object-fit: cover;"
+                            alt="Profile picture of {{ user.first_name }} {{ user.last_name }}"
                     >
                 </div>
 
@@ -94,85 +93,95 @@
                     <div class="mt-2">
                         <strong>Skills:</strong>
                         <div class="mt-1">
-                        {% for skill_name in user.skills.split(',') %}
+                            {% for skill_name in user.skills.split(',') %}
                             <span class="badge bg-secondary me-1 mb-1">
                               {{ skill_name.strip() }}
                             </span>
-                        {% endfor %}
+                            {% endfor %}
                         </div>
                     </div>
                     {% endif %}
 
-       
-                    <div class="mt-3">
-                      <button class="btn btn-dark btn-sm"
-                              type="button"
-                              data-bs-toggle="collapse"
-                              data-bs-target="#user-details-{{ user.student_id }}"
-                              aria-expanded="false"
-                              aria-controls="user-details-{{ user.student_id }}">
-                          See more
-                      </button>
+                    {% if user.interests %}
+                    <div class="mt-2">
+                        <strong>Interests:</strong>
+                        <div class="mt-1">
+                            {% for interest_name in user.interests.split(',') %}
+                            <span class="badge bg-info text-dark me-1 mb-1">
+                              {{ interest_name.strip() }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
 
-                      <div class="collapse mt-3 text-start"
-                           id="user-details-{{ user.student_id }}">
-                        
-                        {% if user.experiences %}
-                          <h6 class="fw-semibold">Experience</h6>
-                          <ul class="list-unstyled small mb-2">
-                            {% for exp in user.experiences %}
-                              <li class="mb-2">
-                                <strong>{{ exp.job_title }}</strong>, {{ exp.organization }}<br>
-                                <span class="text-muted">
+                    <div class="mt-3">
+                        <button class="btn btn-dark btn-sm"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#user-details-{{ user.student_id }}"
+                                aria-expanded="false"
+                                aria-controls="user-details-{{ user.student_id }}">
+                            See more
+                        </button>
+
+                        <div class="collapse mt-3 text-start"
+                             id="user-details-{{ user.student_id }}">
+
+                            {% if user.experiences %}
+                            <h6 class="fw-semibold">Experience</h6>
+                            <ul class="list-unstyled small mb-2">
+                                {% for exp in user.experiences %}
+                                <li class="mb-2">
+                                    <strong>{{ exp.job_title }}</strong>, {{ exp.organization }}<br>
+                                    <span class="text-muted">
                                   {{ exp.start_date }} – {{ exp.end_date or "Present" }}
                                 </span><br>
-                                {% if exp.description %}
-                                  <span class="text-muted">{{ exp.description }}</span>
-                                {% endif %}
-                              </li>
-                            {% endfor %}
-                          </ul>
-                        {% endif %}
+                                    {% if exp.description %}
+                                    <span class="text-muted">{{ exp.description }}</span>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
 
-                        {% if user.courses %}
-                          <h6 class="fw-semibold mt-2">Courses</h6>
-                          <ul class="list-unstyled small mb-0">
-                            {% for c in user.courses %}
-                              <li>
-                                {{ c.title }} ({{ c.year }}, Section {{ c.section }})
-                              </li>
-                            {% endfor %}
-                          </ul>
-                        {% endif %}
+                            {% if user.courses %}
+                            <h6 class="fw-semibold mt-2">Courses</h6>
+                            <ul class="list-unstyled small mb-0">
+                                {% for c in user.courses %}
+                                <li>
+                                    {{ c.title }} ({{ c.year }}, Section {{ c.section }})
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
 
-                        {% if user.availability %}
+                            {% if user.availability %}
                             <div class="mt-2">
                                 <strong>Availability:</strong>
                                 <ul class="list-unstyled mt-1 mb-0">
-                                {% for slot in user.availability %}
+                                    {% for slot in user.availability %}
                                     <li class="small">
-                                    {{ slot.day_of_week }}
-                                    {{ slot.start_time }} – {{ slot.end_time }}
+                                        {{ slot.day_of_week }}
+                                        {{ slot.start_time }} – {{ slot.end_time }}
 
-                                    {% if logged_in %}
+                                        {% if logged_in %}
                                         {% if slot.overlaps %}
                                         <span class="text-success ms-1">✔</span>
                                         {% else %}
                                         <span class="text-danger ms-1">✖</span>
                                         {% endif %}
-                                    {% endif %}
+                                        {% endif %}
                                     </li>
-                                {% endfor %}
+                                    {% endfor %}
                                 </ul>
                             </div>
                             {% endif %}
 
-                        
-
-                        {% if not user.experiences and not user.courses %}
-                          <p class="text-muted small mb-0">No additional details yet.</p>
-                        {% endif %}
-                      </div>
+                            {% if not user.experiences and not user.courses %}
+                            <p class="text-muted small mb-0">No additional details yet.</p>
+                            {% endif %}
+                        </div>
                     </div>
 
                 </div>

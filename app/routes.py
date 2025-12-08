@@ -94,10 +94,13 @@ def users():
             s.email,
             s.grad_year,
             s.profile_pic,
-            GROUP_CONCAT(DISTINCT sk.name ORDER BY sk.name SEPARATOR ', ') AS skills
+            GROUP_CONCAT(DISTINCT sk.name ORDER BY sk.name SEPARATOR ', ') AS skills,
+            GROUP_CONCAT(DISTINCT i.name ORDER BY i.name SEPARATOR ', ') AS interests
         FROM Student s
         LEFT JOIN StudentSkill ss ON s.student_id = ss.student_id
         LEFT JOIN Skill sk ON ss.skill_id = sk.skill_id
+        LEFT JOIN StudentInterest si ON s.student_id = si.student_id
+        LEFT JOIN Interest i ON si.interest_id = i.interest_id
         WHERE 1=1
     """
     params = []
